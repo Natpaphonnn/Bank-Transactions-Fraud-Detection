@@ -14,9 +14,11 @@
 
 End-to-End Unsupervised Fraud Detection Pipeline — EDA, Feature Engineering, Anomaly Detection, Rule Engine, Hybrid Scoring & Interactive Dashboard
 
-## Live Presentation
+## Live Demo
 
 > **[View Interactive Presentation](https://natpaphonnn.github.io/Bank-Transactions-Fraud-Detection/presentation.html)** — Banking-themed website with 3D globe, interactive charts, and scroll animations
+>
+> **[View Interactive Dashboard](https://natpaphonnn.github.io/Bank-Transactions-Fraud-Detection/dashboard.html)** — Plotly.js dashboard with Overview, Rule Engine, Risk Explorer, and Top Accounts
 
 ## Quick Start
 
@@ -42,6 +44,7 @@ streamlit run dashboard.py
 | `04_Rule_Based_Engine.ipynb` | 7 expert fraud rules + Hybrid Risk Score (ML + Rules) |
 | `05_Final_Report.ipynb` | Executive Summary — full pipeline results & recommendations |
 | `dashboard.py` | Interactive Streamlit Dashboard with Live Monitor (`streamlit run dashboard.py`) |
+| `dashboard.html` | Static HTML Dashboard (Plotly.js) — hosted on GitHub Pages |
 | `presentation.html` | Interactive presentation website (banking theme, 3D globe, Chart.js) |
 | `bank_transactions.csv` | Raw dataset — 50,000 synthetic bank transactions |
 

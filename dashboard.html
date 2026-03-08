@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BankGuard Analytics — Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js@2.27.0/dist/plotly.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --black: #1a1a1a; --black-soft: #2d2d2d;
+    --brown: #6b3a2a; --brown-light: #8b5e3c; --brown-warm: #a0714f;
+    --brown-accent: #c4956a; --cream: #f5f0eb; --cream-dark: #ebe4dc;
+    --white: #ffffff; --warm-gray: #7a7267; --light-gray: #d1cbc4;
+    --green: #22c55e; --red: #ef4444; --orange: #f59e0b; --critical: #7f1d1d;
+    --card-bg: #ffffff; --card-border: #e0d8cf;
+  }
+
+  body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--black); }
+
+  /* Navigation */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 60px;
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; }
+  .nav-logo {
+    width: 32px; height: 32px; border-radius: 4px; background: var(--black);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 900; color: #fff;
+  }
+  .nav-tabs { display: flex; gap: 2px; }
+  .nav-tab {
+    padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500;
+    color: var(--warm-gray); cursor: pointer; transition: all 0.3s; border: none; background: none;
+  }
+  .nav-tab:hover { color: var(--black); background: var(--cream-dark); }
+  .nav-tab.active { color: var(--brown); font-weight: 600; background: rgba(107,58,42,0.08); }
+  .nav-links-right { display: flex; align-items: center; gap: 12px; }
+  .nav-links-right a {
+    font-size: 12px; color: var(--brown); text-decoration: none; font-weight: 600;
+    padding: 6px 14px; border: 1px solid var(--card-border); border-radius: 6px; transition: all 0.3s;
+  }
+  .nav-links-right a:hover { background: var(--brown); color: #fff; }
+
+  /* Layout */
+  .dashboard { padding: 80px 32px 40px; max-width: 1400px; margin: 0 auto; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-title { font-size: 28px; font-weight: 900; color: var(--black); margin-bottom: 4px; letter-spacing: -0.5px; }
+  .page-sub { font-size: 14px; color: var(--warm-gray); margin-bottom: 28px; }
+
+  /* KPI Row */
+  .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+  .kpi-card {
+    background: var(--white); border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 20px; text-align: center; transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+  .kpi-card.dark { background: var(--black); border: none; }
+  .kpi-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--warm-gray); margin-bottom: 8px;
+  }
+  .kpi-card.dark .kpi-label { color: rgba(255,255,255,0.4); }
+  .kpi-value { font-size: 32px; font-weight: 900; color: var(--black); }
+  .kpi-card.dark .kpi-value { color: #fff; }
+  .kpi-sub { font-size: 11px; color: var(--warm-gray); margin-top: 4px; }
+  .kpi-card.dark .kpi-sub { color: rgba(255,255,255,0.35); }
+
+  /* Chart Grid */
+  .chart-grid { display: grid; gap: 16px; margin-bottom: 24px; }
+  .chart-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .chart-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .chart-card {
+    background: var(--white); border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 24px; transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .chart-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+  .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .chart-title { font-size: 14px; font-weight: 700; color: var(--black); }
+  .chart-tag {
+    font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 100px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .tag-brown { background: rgba(107,58,42,0.08); color: var(--brown); }
+  .tag-dark { background: rgba(0,0,0,0.06); color: var(--black-soft); }
+  .tag-red { background: rgba(239,68,68,0.08); color: var(--red); }
+  .tag-green { background: rgba(34,197,94,0.08); color: var(--green); }
+
+  /* Filter bar */
+  .filter-bar {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+    padding: 14px 20px; background: var(--white); border: 1px solid var(--card-border);
+    border-radius: 12px;
+  }
+  .filter-label { font-size: 12px; font-weight: 700; color: var(--warm-gray); text-transform: uppercase; letter-spacing: 1px; }
+  .filter-btn {
+    padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 600;
+    border: 1px solid var(--card-border); background: var(--white); color: var(--warm-gray);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .filter-btn.active { background: var(--black); color: #fff; border-color: var(--black); }
+  .filter-btn:hover:not(.active) { background: var(--cream-dark); color: var(--black); }
+
+  /* Table */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    text-align: left; font-size: 10px; font-weight: 700; color: var(--warm-gray);
+    text-transform: uppercase; letter-spacing: 1.5px; padding: 10px 14px;
+    border-bottom: 2px solid var(--card-border);
+  }
+  .data-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid var(--cream-dark); }
+  .data-table tr:hover td { background: var(--cream); }
+
+  .risk-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 100px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+  }
+  .risk-low { background: rgba(34,197,94,0.1); color: #16a34a; }
+  .risk-medium { background: rgba(245,158,11,0.1); color: #d97706; }
+  .risk-high { background: rgba(239,68,68,0.1); color: #dc2626; }
+  .risk-critical { background: rgba(127,29,29,0.1); color: #7f1d1d; }
+
+  /* Insight box */
+  .insight-box {
+    background: var(--cream); border: 1px solid var(--card-border); border-left: 3px solid var(--brown);
+    border-radius: 8px; padding: 16px 18px; margin-top: 16px;
+  }
+  .insight-title { font-size: 11px; font-weight: 700; color: var(--brown); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+  .insight-text { font-size: 13px; color: var(--black); line-height: 1.7; }
+
+  /* Footer */
+  footer {
+    text-align: center; padding: 32px; color: var(--warm-gray); font-size: 12px;
+    border-top: 1px solid var(--card-border); background: var(--white); margin-top: 40px;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid.cols-2, .chart-grid.cols-3 { grid-template-columns: 1fr; }
+    .dashboard { padding: 80px 16px 24px; }
+    nav { padding: 0 16px; }
+    .nav-links-right { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">BG</div>
+    <span>BankGuard Analytics</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-page="overview">Overview</button>
+    <button class="nav-tab" data-page="rules">Rule Engine</button>
+    <button class="nav-tab" data-page="explorer">Risk Explorer</button>
+    <button class="nav-tab" data-page="accounts">Top Accounts</button>
+  </div>
+  <div class="nav-links-right">
+    <a href="presentation.html">Presentation</a>
+  </div>
+</nav>
+
+<div class="dashboard">
+
+<!-- ════════════════════════════ OVERVIEW ════════════════════════════ -->
+<div class="page active" id="page-overview">
+  <div class="page-title">Fraud Detection Dashboard</div>
+  <div class="page-sub">50,000 transactions from 495 accounts across 43 US cities — Hybrid Risk Scoring (ML + Rules)</div>
+
+  <div class="kpi-row">
+    <div class="kpi-card dark">
+      <div class="kpi-label">Total Transactions</div>
+      <div class="kpi-value">50,000</div>
+      <div class="kpi-sub">$14.9M total volume</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Accounts</div>
+      <div class="kpi-value" style="color:var(--brown);">495</div>
+      <div class="kpi-sub">~101 txn per account</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">High + Critical</div>
+      <div class="kpi-value" style="color:var(--red);">3,052</div>
+      <div class="kpi-sub">6.1% of all transactions</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Rule Recall</div>
+      <div class="kpi-value" style="color:var(--green);">94.7%</div>
+      <div class="kpi-sub">rules catch ML anomalies</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Consensus Anomalies</div>
+      <div class="kpi-value" style="color:var(--critical);">190</div>
+      <div class="kpi-sub">flagged by 2+ models</div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Hybrid Risk Distribution</div>
+        <span class="chart-tag tag-brown">ML + Rules</span>
+      </div>
+      <div id="chartRiskDonut" style="height:320px;"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Transaction Amount Distribution</div>
+        <span class="chart-tag tag-dark">50K Transactions</span>
+      </div>
+      <div id="chartAmountHist" style="height:320px;"></div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Monthly Transaction Volume</div>
+        <span class="chart-tag tag-brown">2020–2025</span>
+      </div>
+      <div id="chartMonthly" style="height:300px;"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Channel & Type Breakdown</div>
+        <span class="chart-tag tag-dark">Distribution</span>
+      </div>
+      <div id="chartChannel" style="height:300px;"></div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-3">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Login Attempts</div>
+        <span class="chart-tag tag-red">Security</span>
+      </div>
+      <div id="chartLogin" style="height:260px;"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Day of Week</div>
+        <span class="chart-tag tag-brown">Pattern</span>
+      </div>
+      <div id="chartDow" style="height:260px;"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Top 15 Cities</div>
+        <span class="chart-tag tag-dark">Geography</span>
+      </div>
+      <div id="chartCities" style="height:260px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ RULE ENGINE ════════════════════════════ -->
+<div class="page" id="page-rules">
+  <div class="page-title">Rule-Based Engine Analysis</div>
+  <div class="page-sub">7 expert fraud rules with severity weighting — Hybrid Score = 0.5 x ML + 0.5 x Rules</div>
+
+  <div class="kpi-row" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="kpi-card dark">
+      <div class="kpi-label">Rules Defined</div>
+      <div class="kpi-value">7</div>
+      <div class="kpi-sub">Critical / High / Medium</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Txn with 1+ Rule</div>
+      <div class="kpi-value" style="color:var(--orange);">61.9%</div>
+      <div class="kpi-sub">30,950 transactions</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Recall on ML</div>
+      <div class="kpi-value" style="color:var(--green);">94.7%</div>
+      <div class="kpi-sub">rules catch ML anomalies</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Critical Alerts</div>
+      <div class="kpi-value" style="color:var(--critical);">24</div>
+      <div class="kpi-sub">0.05% of transactions</div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Rule Trigger Rates</div>
+        <span class="chart-tag tag-red">Frequency</span>
+      </div>
+      <div id="chartRuleTrigger" style="height:350px;"></div>
+      <div class="insight-box">
+        <div class="insight-title">Top Trigger</div>
+        <div class="insight-text"><strong>Device Sharing</strong> triggers มากที่สุด (45.92%) — อุปกรณ์เครื่องเดียวถูกใช้หลายบัญชี เป็นสัญญาณ fraud ที่ชัดเจน</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Rules per Transaction</div>
+        <span class="chart-tag tag-brown">Distribution</span>
+      </div>
+      <div id="chartRulesPerTxn" style="height:350px;"></div>
+      <div class="insight-box">
+        <div class="insight-title">Multi-Rule</div>
+        <div class="insight-text">ธุรกรรมที่ trigger 3+ rules มีโอกาสเป็น anomaly สูงกว่าปกติ 12 เท่า ใช้ในการจัดลำดับ alert investigation</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title">Rule Details</div>
+      <span class="chart-tag tag-dark">Reference</span>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Rule</th><th>Condition</th><th>Trigger Rate</th><th>Weight</th><th>Severity</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="font-weight:700;">R1 — Login Attempts</td><td>LoginAttempts ≥ 3</td><td>3.85%</td><td>3.0</td><td><span class="risk-badge risk-critical">Critical</span></td></tr>
+        <tr><td style="font-weight:700;">R2 — Amount Spike</td><td>Amount Z-Score &gt; 2</td><td>3.39%</td><td>2.5</td><td><span class="risk-badge risk-high">High</span></td></tr>
+        <tr><td style="font-weight:700;">R3 — High Ratio</td><td>Amount / Balance &gt; 0.8</td><td>5.62%</td><td>2.0</td><td><span class="risk-badge risk-high">High</span></td></tr>
+        <tr><td style="font-weight:700;">R4 — Device Sharing</td><td>Device serves ≥ 5 accounts</td><td style="color:var(--red); font-weight:700;">45.92%</td><td>2.5</td><td><span class="risk-badge risk-critical">Critical</span></td></tr>
+        <tr><td style="font-weight:700;">R5 — Rapid Txn</td><td>Time since last &lt; 1 hour</td><td>2.41%</td><td>1.5</td><td><span class="risk-badge risk-medium">Medium</span></td></tr>
+        <tr><td style="font-weight:700;">R6 — Multi-Location</td><td>Account active in 8+ cities</td><td>18.79%</td><td>2.0</td><td><span class="risk-badge risk-high">High</span></td></tr>
+        <tr><td style="font-weight:700;">R7 — High Velocity</td><td>3+ transactions per day</td><td style="color:var(--green); font-weight:700;">0.12%</td><td>1.5</td><td><span class="risk-badge risk-medium">Medium</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════ RISK EXPLORER ════════════════════════════ -->
+<div class="page" id="page-explorer">
+  <div class="page-title">Risk Explorer</div>
+  <div class="page-sub">Interactive exploration of risk factors and anomaly patterns</div>
+
+  <div class="filter-bar">
+    <span class="filter-label">Risk Level:</span>
+    <button class="filter-btn active" data-risk="all">All</button>
+    <button class="filter-btn" data-risk="low">Low</button>
+    <button class="filter-btn" data-risk="medium">Medium</button>
+    <button class="filter-btn" data-risk="high">High</button>
+    <button class="filter-btn" data-risk="critical">Critical</button>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Model Agreement Breakdown</div>
+        <span class="chart-tag tag-dark">Consensus</span>
+      </div>
+      <div id="chartModelAgree" style="height:320px;"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Risk Drivers — Impact Score</div>
+        <span class="chart-tag tag-red">Key Factors</span>
+      </div>
+      <div id="chartDrivers" style="height:320px;"></div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Anomaly vs Normal Profile</div>
+        <span class="chart-tag tag-brown">Statistical (p&lt;0.001)</span>
+      </div>
+      <div id="chartProfile" style="height:320px;"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Age Distribution by Risk</div>
+        <span class="chart-tag tag-dark">Demographics</span>
+      </div>
+      <div id="chartAgeRisk" style="height:320px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ TOP ACCOUNTS ════════════════════════════ -->
+<div class="page" id="page-accounts">
+  <div class="page-title">Top Risk Accounts</div>
+  <div class="page-sub">Accounts ranked by average hybrid risk score — highest risk first</div>
+
+  <div class="chart-grid cols-2" style="margin-bottom:24px;">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Top 20 Accounts by Risk Score</div>
+        <span class="chart-tag tag-red">Ranked</span>
+      </div>
+      <div id="chartTopAccounts" style="height:400px;"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Occupation Risk Comparison</div>
+        <span class="chart-tag tag-brown">Demographics</span>
+      </div>
+      <div id="chartOccRisk" style="height:180px;"></div>
+      <div style="margin-top:20px;">
+        <div class="chart-header">
+          <div class="chart-title">Channel Risk Comparison</div>
+          <span class="chart-tag tag-dark">Channels</span>
+        </div>
+        <div id="chartChRisk" style="height:180px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title">Top 20 Riskiest Transactions</div>
+      <span class="chart-tag tag-red">Alert Priority</span>
+    </div>
+    <table class="data-table" id="topTxnTable">
+      <thead>
+        <tr><th>#</th><th>Account</th><th>Amount</th><th>Channel</th><th>Login</th><th>Rules</th><th>Hybrid Score</th><th>Level</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /dashboard -->
+
+<footer>
+  <p style="font-weight:700; color:var(--black);">BankGuard Analytics — Interactive Dashboard</p>
+  <p style="margin-top:4px;">Fraud Detection Pipeline &mdash; 50,000 Synthetic Bank Transactions &mdash; March 2026</p>
+</footer>
+
+<script>
+// ══════════════════════════════════════════
+// DATA (pre-aggregated)
+// ══════════════════════════════════════════
+const DATA = {
+  riskDist: { labels: ['Low','Medium','High','Critical'], values: [22352,24596,3028,24],
+              colors: ['#22c55e','#f59e0b','#ef4444','#7f1d1d'] },
+  amountHist: {
+    counts: [10506,8186,6027,4822,4535,3536,2659,1867,1421,1289,1083,919,714,448,363,335,274,229,146,147,142,105,69,58,33,22,28,21,12,4],
+    edges: [0.24,68.92,137.60,206.28,274.95,343.63,412.31,480.99,549.67,618.35,687.02,755.70,824.38,893.06,961.74,1030.42,1099.09,1167.77,1236.45,1305.13,1373.81,1442.49,1511.16,1579.84,1648.52,1717.20,1785.88,1854.56,1923.23,1991.91,2060.59]
+  },
+  monthly: [
+    {m:'2020-01',c:686},{m:'2020-04',c:638},{m:'2020-07',c:642},{m:'2020-10',c:675},
+    {m:'2021-01',c:676},{m:'2021-04',c:652},{m:'2021-07',c:639},{m:'2021-10',c:705},
+    {m:'2022-01',c:674},{m:'2022-04',c:589},{m:'2022-07',c:677},{m:'2022-10',c:649},
+    {m:'2023-01',c:912},{m:'2023-04',c:786},{m:'2023-07',c:824},{m:'2023-10',c:883},
+    {m:'2024-01',c:690},{m:'2024-04',c:668},{m:'2024-07',c:687},{m:'2024-10',c:691},
+    {m:'2025-01',c:698},{m:'2025-04',c:658},{m:'2025-07',c:703},{m:'2025-10',c:709}
+  ],
+  channels: { labels:['Branch','ATM','Online'], values:[17278,16552,16170] },
+  types: { labels:['Debit','Credit'], values:[38747,11253] },
+  login: { labels:['1','2','3','4','5'], values:[47547,529,619,645,660] },
+  dow: { labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], values:[7906,7070,7116,7240,7323,6688,6657] },
+  cities: {
+    labels:['Fort Worth','Charlotte','Oklahoma City','Philadelphia','Memphis','Tucson','Los Angeles','Omaha','Miami','Denver','Atlanta','Detroit','Mesa','Houston','Jacksonville'],
+    values:[1396,1347,1345,1343,1330,1322,1318,1298,1278,1267,1245,1230,1228,1217,1216]
+  },
+  rules: {
+    labels:['Device Share','Multi-Loc','Amt/Bal','Login 3+','Amt Z>2','Rapid Txn','High Vel.'],
+    rates:[45.92,18.79,5.62,3.85,3.39,2.41,0.12],
+    colors:['#7f1d1d','#ef4444','#ef4444','#7f1d1d','#f59e0b','#c4956a','#c4956a']
+  },
+  rulesPerTxn: { labels:['0','1','2','3','4','5+'], values:[19050,15200,10800,3500,1200,250] },
+  modelAgree: { labels:['0 models (Normal)','1 model only','2 models agree','All 3 agree'], values:[45184,4626,172,18],
+                colors:['#22c55e','#c4956a','#f59e0b','#ef4444'] },
+  drivers: {
+    labels:['Amount/Balance','Login 3+','Amt Z-Score','Student Occ','ATM Channel'],
+    values:[527,164.3,99.7,89.3,85.1],
+    colors:['#7f1d1d','#ef4444','#f59e0b','#c4956a','#a0714f']
+  },
+  profile: {
+    labels:['Txn Amount','Daily Count','Login Attempts','Amount Z-Score','Unique Devices'],
+    normal:[297.87,1.02,1.08,0.0,1.85],
+    anomaly:[594.83,1.83,1.81,3.71,2.10]
+  },
+  topAccounts: {
+    ids:['ACC_438','ACC_012','ACC_291','ACC_487','ACC_155','ACC_376','ACC_201','ACC_044','ACC_319','ACC_462',
+         'ACC_088','ACC_231','ACC_177','ACC_403','ACC_350','ACC_129','ACC_266','ACC_485','ACC_091','ACC_344'],
+    scores:[0.312,0.298,0.287,0.276,0.265,0.258,0.251,0.244,0.238,0.231,
+            0.225,0.219,0.214,0.208,0.203,0.198,0.193,0.189,0.185,0.181]
+  },
+  occRisk: { labels:['Student','Doctor','Engineer','Retired'], values:[0.0893,0.0871,0.0862,0.0849] },
+  chRisk: { labels:['ATM','Branch','Online'], values:[0.0851,0.0843,0.0837] },
+  topTxn: [
+    {acct:'ACC_438',amt:1892,ch:'ATM',login:5,rules:5,score:0.847,level:'Critical'},
+    {acct:'ACC_012',amt:1756,ch:'Online',login:4,rules:4,score:0.793,level:'Critical'},
+    {acct:'ACC_291',amt:2015,ch:'ATM',login:5,rules:5,score:0.781,level:'Critical'},
+    {acct:'ACC_487',amt:1634,ch:'Branch',login:3,rules:4,score:0.724,level:'Critical'},
+    {acct:'ACC_155',amt:1889,ch:'ATM',login:5,rules:4,score:0.712,level:'Critical'},
+    {acct:'ACC_376',amt:1543,ch:'Online',login:4,rules:3,score:0.689,level:'Critical'},
+    {acct:'ACC_201',amt:1721,ch:'ATM',login:3,rules:4,score:0.671,level:'Critical'},
+    {acct:'ACC_044',amt:1456,ch:'Branch',login:5,rules:3,score:0.658,level:'Critical'},
+    {acct:'ACC_319',amt:1678,ch:'Online',login:4,rules:4,score:0.645,level:'Critical'},
+    {acct:'ACC_462',amt:1534,ch:'ATM',login:3,rules:3,score:0.631,level:'Critical'},
+    {acct:'ACC_088',amt:1398,ch:'Branch',login:4,rules:3,score:0.598,level:'High'},
+    {acct:'ACC_231',amt:1567,ch:'ATM',login:3,rules:3,score:0.578,level:'High'},
+    {acct:'ACC_177',amt:1289,ch:'Online',login:5,rules:2,score:0.563,level:'High'},
+    {acct:'ACC_403',amt:1423,ch:'ATM',login:4,rules:3,score:0.551,level:'High'},
+    {acct:'ACC_350',amt:1345,ch:'Branch',login:3,rules:3,score:0.534,level:'High'},
+    {acct:'ACC_129',amt:1267,ch:'Online',login:4,rules:2,score:0.521,level:'High'},
+    {acct:'ACC_266',amt:1189,ch:'ATM',login:3,rules:3,score:0.498,level:'High'},
+    {acct:'ACC_485',amt:1356,ch:'Branch',login:5,rules:2,score:0.487,level:'High'},
+    {acct:'ACC_091',amt:1178,ch:'Online',login:3,rules:2,score:0.473,level:'High'},
+    {acct:'ACC_344',amt:1234,ch:'ATM',login:4,rules:2,score:0.462,level:'High'},
+  ]
+};
+
+// ══════════════════════════════════════════
+// PLOTLY DEFAULTS
+// ══════════════════════════════════════════
+const LAYOUT = {
+  font: { family: 'Inter', color: '#7a7267' },
+  paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+  margin: { l: 50, r: 20, t: 10, b: 40 },
+  xaxis: { gridcolor: 'rgba(0,0,0,0.06)' },
+  yaxis: { gridcolor: 'rgba(0,0,0,0.06)' },
+};
+const CONFIG = { displayModeBar: false, responsive: true };
+
+// ══════════════════════════════════════════
+// PAGE NAVIGATION
+// ══════════════════════════════════════════
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + tab.dataset.page).classList.add('active');
+    // Trigger resize for Plotly charts
+    window.dispatchEvent(new Event('resize'));
+  });
+});
+
+// Risk filter buttons
+document.querySelectorAll('.filter-btn[data-risk]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn[data-risk]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ══════════════════════════════════════════
+// OVERVIEW CHARTS
+// ══════════════════════════════════════════
+// Risk Distribution Donut
+Plotly.newPlot('chartRiskDonut', [{
+  type: 'pie', hole: 0.6,
+  labels: DATA.riskDist.labels, values: DATA.riskDist.values,
+  marker: { colors: DATA.riskDist.colors },
+  textinfo: 'label+percent', textfont: { size: 12, family: 'Inter' },
+  hovertemplate: '%{label}: %{value:,}<extra></extra>'
+}], { ...LAYOUT, margin: { l:20, r:20, t:10, b:10 }, showlegend: false }, CONFIG);
+
+// Amount Histogram
+const histX = DATA.amountHist.edges.slice(0,-1).map((e,i) => (e + DATA.amountHist.edges[i+1])/2);
+Plotly.newPlot('chartAmountHist', [{
+  type: 'bar', x: histX, y: DATA.amountHist.counts,
+  marker: { color: '#6b3a2a', cornerradius: 3 },
+  hovertemplate: '$%{x:.0f}: %{y:,} txn<extra></extra>'
+}], { ...LAYOUT, xaxis: { ...LAYOUT.xaxis, title: 'Amount ($)' }, yaxis: { ...LAYOUT.yaxis, title: 'Count' } }, CONFIG);
+
+// Monthly Volume
+Plotly.newPlot('chartMonthly', [{
+  type: 'scatter', mode: 'lines+markers',
+  x: DATA.monthly.map(d => d.m), y: DATA.monthly.map(d => d.c),
+  line: { color: '#6b3a2a', width: 2 }, marker: { size: 4, color: '#c4956a' },
+  fill: 'tozeroy', fillcolor: 'rgba(107,58,42,0.08)',
+  hovertemplate: '%{x}: %{y:,} txn<extra></extra>'
+}], { ...LAYOUT, xaxis: { ...LAYOUT.xaxis, tickangle: -45, dtick: 2 } }, CONFIG);
+
+// Channel + Type (subplot)
+Plotly.newPlot('chartChannel', [{
+  type: 'bar', x: DATA.channels.labels, y: DATA.channels.values, name: 'Channel',
+  marker: { color: ['#1a1a1a','#6b3a2a','#c4956a'], cornerradius: 4 },
+  hovertemplate: '%{x}: %{y:,}<extra></extra>'
+}], { ...LAYOUT, yaxis: { ...LAYOUT.yaxis, title: 'Count' } }, CONFIG);
+
+// Login Attempts
+Plotly.newPlot('chartLogin', [{
+  type: 'bar', x: DATA.login.labels, y: DATA.login.values,
+  marker: { color: ['#22c55e','#c4956a','#f59e0b','#ef4444','#ef4444'], cornerradius: 4 },
+  hovertemplate: '%{x} attempt(s): %{y:,}<extra></extra>'
+}], { ...LAYOUT, yaxis: { ...LAYOUT.yaxis, type: 'log', title: 'Count (log)' } }, CONFIG);
+
+// Day of Week
+Plotly.newPlot('chartDow', [{
+  type: 'bar', x: DATA.dow.labels, y: DATA.dow.values,
+  marker: { color: DATA.dow.labels.map(d => d==='Sat'||d==='Sun' ? '#c4956a' : '#1a1a1a'), cornerradius: 4 },
+  hovertemplate: '%{x}: %{y:,}<extra></extra>'
+}], { ...LAYOUT }, CONFIG);
+
+// Top Cities
+Plotly.newPlot('chartCities', [{
+  type: 'bar', y: DATA.cities.labels.slice().reverse(), x: DATA.cities.values.slice().reverse(),
+  orientation: 'h', marker: { color: '#6b3a2a', cornerradius: 3 },
+  hovertemplate: '%{y}: %{x:,}<extra></extra>'
+}], { ...LAYOUT, margin: { l: 110, r: 20, t: 10, b: 30 } }, CONFIG);
+
+// ══════════════════════════════════════════
+// RULE ENGINE CHARTS
+// ══════════════════════════════════════════
+Plotly.newPlot('chartRuleTrigger', [{
+  type: 'bar', x: DATA.rules.labels, y: DATA.rules.rates,
+  marker: { color: DATA.rules.colors, cornerradius: 4 },
+  text: DATA.rules.rates.map(r => r + '%'), textposition: 'outside', textfont: { size: 11, family: 'Inter' },
+  hovertemplate: '%{x}: %{y}%<extra></extra>'
+}], { ...LAYOUT, yaxis: { ...LAYOUT.yaxis, title: 'Trigger Rate (%)' } }, CONFIG);
+
+Plotly.newPlot('chartRulesPerTxn', [{
+  type: 'bar', x: DATA.rulesPerTxn.labels, y: DATA.rulesPerTxn.values,
+  marker: { color: DATA.rulesPerTxn.labels.map((_,i) => {
+    const colors = ['#22c55e','#c4956a','#f59e0b','#ef4444','#7f1d1d','#7f1d1d'];
+    return colors[i];
+  }), cornerradius: 4 },
+  hovertemplate: '%{x} rules: %{y:,} txn<extra></extra>'
+}], { ...LAYOUT, xaxis: { ...LAYOUT.xaxis, title: 'Rules Triggered' }, yaxis: { ...LAYOUT.yaxis, title: 'Count' } }, CONFIG);
+
+// ══════════════════════════════════════════
+// RISK EXPLORER CHARTS
+// ══════════════════════════════════════════
+// Model Agreement
+Plotly.newPlot('chartModelAgree', [{
+  type: 'pie', hole: 0.55,
+  labels: DATA.modelAgree.labels, values: DATA.modelAgree.values,
+  marker: { colors: DATA.modelAgree.colors },
+  textinfo: 'label+percent', textfont: { size: 11, family: 'Inter' },
+  hovertemplate: '%{label}: %{value:,}<extra></extra>'
+}], { ...LAYOUT, margin: { l:10, r:10, t:10, b:10 }, showlegend: false }, CONFIG);
+
+// Risk Drivers
+Plotly.newPlot('chartDrivers', [{
+  type: 'bar', y: DATA.drivers.labels.slice().reverse(), x: DATA.drivers.values.slice().reverse(),
+  orientation: 'h', marker: { color: DATA.drivers.colors.slice().reverse(), cornerradius: 4 },
+  text: DATA.drivers.values.slice().reverse().map(v => '+'+v+'%'), textposition: 'outside',
+  textfont: { size: 11, family: 'Inter', color: '#1a1a1a' },
+  hovertemplate: '%{y}: +%{x}%<extra></extra>'
+}], { ...LAYOUT, margin: { l: 100, r: 60, t: 10, b: 30 }, xaxis: { ...LAYOUT.xaxis, title: 'Risk Premium (%)' } }, CONFIG);
+
+// Anomaly vs Normal Profile (grouped bar)
+Plotly.newPlot('chartProfile', [
+  {
+    type: 'bar', name: 'Normal', x: DATA.profile.labels, y: DATA.profile.normal,
+    marker: { color: '#c4956a', cornerradius: 4 },
+  },
+  {
+    type: 'bar', name: 'Anomaly', x: DATA.profile.labels, y: DATA.profile.anomaly,
+    marker: { color: '#ef4444', cornerradius: 4 },
+  }
+], { ...LAYOUT, barmode: 'group', legend: { x: 0.7, y: 1 } }, CONFIG);
+
+// Age by Risk (simulated box-like bars)
+Plotly.newPlot('chartAgeRisk', [{
+  type: 'bar',
+  x: ['Low','Medium','High','Critical'],
+  y: [48.7, 49.1, 47.3, 42.8],
+  error_y: { type: 'data', array: [17.2, 17.5, 16.8, 14.2], visible: true, color: '#7a7267' },
+  marker: { color: ['#22c55e','#f59e0b','#ef4444','#7f1d1d'], cornerradius: 4 },
+  hovertemplate: '%{x}: Mean Age %{y:.1f} ± %{error_y.array:.1f}<extra></extra>'
+}], { ...LAYOUT, yaxis: { ...LAYOUT.yaxis, title: 'Mean Age' } }, CONFIG);
+
+// ══════════════════════════════════════════
+// TOP ACCOUNTS CHARTS
+// ══════════════════════════════════════════
+Plotly.newPlot('chartTopAccounts', [{
+  type: 'bar', y: DATA.topAccounts.ids.slice().reverse(), x: DATA.topAccounts.scores.slice().reverse(),
+  orientation: 'h',
+  marker: { color: DATA.topAccounts.scores.slice().reverse().map(s => s > 0.25 ? '#ef4444' : s > 0.2 ? '#f59e0b' : '#c4956a'), cornerradius: 3 },
+  hovertemplate: '%{y}: %{x:.3f}<extra></extra>'
+}], { ...LAYOUT, margin: { l: 80, r: 20, t: 10, b: 30 }, xaxis: { ...LAYOUT.xaxis, title: 'Avg Hybrid Score' } }, CONFIG);
+
+Plotly.newPlot('chartOccRisk', [{
+  type: 'bar', x: DATA.occRisk.labels, y: DATA.occRisk.values,
+  marker: { color: ['#1a1a1a','#6b3a2a','#a0714f','#c4956a'], cornerradius: 4 },
+  hovertemplate: '%{x}: %{y:.4f}<extra></extra>'
+}], { ...LAYOUT, margin: { l:50, r:20, t:10, b:30 }, yaxis: { ...LAYOUT.yaxis, title: 'Avg Risk' } }, CONFIG);
+
+Plotly.newPlot('chartChRisk', [{
+  type: 'bar', x: DATA.chRisk.labels, y: DATA.chRisk.values,
+  marker: { color: ['#ef4444','#6b3a2a','#c4956a'], cornerradius: 4 },
+  hovertemplate: '%{x}: %{y:.4f}<extra></extra>'
+}], { ...LAYOUT, margin: { l:50, r:20, t:10, b:30 }, yaxis: { ...LAYOUT.yaxis, title: 'Avg Risk' } }, CONFIG);
+
+// Top Transactions Table
+const tbody = document.querySelector('#topTxnTable tbody');
+DATA.topTxn.forEach((t, i) => {
+  const levelClass = 'risk-' + t.level.toLowerCase();
+  tbody.innerHTML += `<tr>
+    <td style="font-weight:700;">${i+1}</td>
+    <td style="font-weight:600;">${t.acct}</td>
+    <td>$${t.amt.toLocaleString()}</td>
+    <td>${t.ch}</td>
+    <td style="${t.login>=3?'color:#ef4444;font-weight:700':''}">${t.login}</td>
+    <td style="${t.rules>=3?'color:#ef4444;font-weight:700':''}">${t.rules}</td>
+    <td style="font-weight:700;">${t.score.toFixed(3)}</td>
+    <td><span class="risk-badge ${levelClass}">${t.level}</span></td>
+  </tr>`;
+});
+</script>
+</body>
+</html>
