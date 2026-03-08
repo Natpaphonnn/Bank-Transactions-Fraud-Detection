@@ -1175,15 +1175,94 @@ animateCounters();
   renderer.setClearColor(0x000000, 0);
   container.appendChild(renderer.domElement);
 
-  // Globe
+  // Globe with canvas texture (continents)
+  const texCanvas = document.createElement('canvas');
+  texCanvas.width = 1024; texCanvas.height = 512;
+  const ctx = texCanvas.getContext('2d');
+
+  // Ocean
+  ctx.fillStyle = '#1e1e1e';
+  ctx.fillRect(0, 0, 1024, 512);
+
+  // Grid lines (subtle)
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 0.5;
+  for (let lon = -180; lon <= 180; lon += 30) {
+    const x = (lon + 180) / 360 * 1024;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 512); ctx.stroke();
+  }
+  for (let lat = -90; lat <= 90; lat += 30) {
+    const y = (90 - lat) / 180 * 512;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke();
+  }
+
+  // Helper: lat/lon to canvas coords
+  function ll(lat, lon) { return [(lon+180)/360*1024, (90-lat)/180*512]; }
+  function drawPoly(coords, fill) {
+    ctx.beginPath();
+    coords.forEach(([la,lo], i) => { const [x,y] = ll(la,lo); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.closePath();
+    ctx.fillStyle = fill || 'rgba(255,255,255,0.08)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(196,149,106,0.25)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Simplified continent shapes
+  // North America
+  drawPoly([
+    [70,-168],[72,-140],[70,-100],[65,-65],[60,-65],[50,-55],[45,-65],[43,-70],
+    [30,-80],[25,-80],[25,-97],[20,-105],[30,-118],[35,-120],[40,-124],[48,-125],
+    [55,-130],[58,-140],[60,-148],[62,-165],[68,-168]
+  ]);
+  // Central America
+  drawPoly([[20,-105],[18,-88],[15,-84],[10,-84],[8,-78],[10,-75],[18,-88],[20,-97]]);
+  // South America
+  drawPoly([
+    [12,-72],[10,-62],[5,-52],[0,-50],[-5,-35],[-10,-37],[-15,-40],[-20,-40],
+    [-25,-48],[-30,-50],[-35,-57],[-40,-62],[-45,-66],[-50,-68],[-55,-70],[-56,-68],
+    [-52,-72],[-45,-75],[-40,-74],[-35,-72],[-20,-70],[-15,-76],[-5,-80],[0,-78],[5,-77],[10,-75]
+  ]);
+  // Europe
+  drawPoly([
+    [71,28],[70,40],[65,42],[60,30],[55,20],[50,5],[45,-8],[36,-8],[36,0],
+    [38,10],[38,25],[40,28],[42,30],[45,28],[47,15],[48,8],[50,5],[52,7],
+    [54,14],[55,20],[57,24],[60,30],[65,28],[68,25],[70,28]
+  ]);
+  // Africa
+  drawPoly([
+    [37,-8],[36,0],[32,10],[30,32],[20,38],[15,42],[10,42],[5,10],[0,10],
+    [-5,12],[-10,14],[-15,17],[-20,18],[-25,20],[-30,28],[-34,26],[-35,20],
+    [-30,17],[-20,15],[-15,12],[-5,10],[0,3],[5,0],[5,-5],[5,-15],[10,-17],
+    [20,-17],[25,-15],[30,-10],[35,-5]
+  ]);
+  // Asia (simplified)
+  drawPoly([
+    [71,28],[75,80],[77,100],[73,140],[65,140],[60,135],[55,135],[50,130],
+    [45,130],[40,120],[35,105],[30,100],[25,95],[20,100],[15,100],[10,105],
+    [5,105],[0,104],[-8,115],[5,120],[10,115],[20,110],[23,114],[30,120],
+    [35,130],[40,130],[42,132],[45,142],[50,143],[55,160],[60,163],[65,170],
+    [70,180],[72,180],[72,170],[68,160],[65,140],[73,140],[75,150],[77,180],
+    [78,180],[78,100],[78,60],[72,40],[71,28]
+  ]);
+  // India
+  drawPoly([[30,68],[25,70],[20,73],[15,76],[10,78],[8,77],[12,73],[20,68],[25,65],[30,68]]);
+  // Southeast Asia / Indonesia
+  drawPoly([[5,95],[5,100],[0,100],[-2,105],[-5,105],[-7,107],[-8,115],[0,104],[5,105],[5,100]]);
+  // Australia
+  drawPoly([
+    [-12,130],[-15,125],[-20,117],[-25,114],[-30,115],[-35,117],[-38,145],
+    [-35,150],[-30,153],[-25,153],[-20,149],[-15,145],[-12,137],[-12,130]
+  ]);
+  // Greenland
+  drawPoly([[60,-45],[65,-40],[70,-25],[75,-20],[80,-40],[78,-55],[75,-60],[70,-55],[65,-53],[60,-48]]);
+
+  const earthTexture = new THREE.CanvasTexture(texCanvas);
   const globeGeo = new THREE.SphereGeometry(1, 64, 64);
-  const globeMat = new THREE.MeshPhongMaterial({ color: 0x2d2d2d, transparent: true, opacity: 0.95, shininess: 15 });
+  const globeMat = new THREE.MeshPhongMaterial({ map: earthTexture, shininess: 15 });
   const globe = new THREE.Mesh(globeGeo, globeMat);
   scene.add(globe);
-
-  // Wireframe
-  const wireMat = new THREE.MeshBasicMaterial({ color: 0x6b3a2a, wireframe: true, transparent: true, opacity: 0.08 });
-  scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.002, 36, 36), wireMat));
 
   // Atmosphere
   const atmosMat = new THREE.ShaderMaterial({
@@ -1259,7 +1338,7 @@ animateCounters();
   const cityMeshes = [];
   cities.forEach(city => {
     const ratio = city.count / maxCount;
-    const size = 0.008 + ratio * 0.018;
+    const size = 0.006 + ratio * 0.012;
     const pos = latLonToVec3(city.lat, city.lon, 1.01);
 
     const dotGeo = new THREE.SphereGeometry(size, 12, 12);
@@ -1270,8 +1349,8 @@ animateCounters();
     pointsGroup.add(dot);
     cityMeshes.push(dot);
 
-    const ringGeo = new THREE.RingGeometry(size*1.5, size*2.5, 16);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0xc4956a, transparent: true, opacity: 0.2+ratio*0.3, side: THREE.DoubleSide });
+    const ringGeo = new THREE.RingGeometry(size*1.5, size*2.2, 16);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xc4956a, transparent: true, opacity: 0.1+ratio*0.2, side: THREE.DoubleSide });
     const ring = new THREE.Mesh(ringGeo, ringMat);
     ring.position.copy(pos); ring.lookAt(0,0,0);
     pointsGroup.add(ring);
