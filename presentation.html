@@ -424,6 +424,7 @@
     <a href="#behavior">Behavior</a>
     <a href="#anomalies">Anomalies</a>
     <a href="#model-eval">Model Evaluation</a>
+    <a href="#rule-engine">Rule Engine</a>
     <a href="#next-steps">Next Steps</a>
   </div>
 </nav>
@@ -1133,10 +1134,176 @@
 <div class="slide-divider"></div>
 
 <!-- ═══════════════════════════════════════════════════ -->
-<!-- SLIDE 7: Next Steps -->
+<!-- SLIDE 7: Rule Engine & Hybrid Scoring -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="slide" id="rule-engine">
+  <div class="section-num">06 — Rule Engine & Hybrid Scoring</div>
+  <div class="section-title">Expert Rules + ML Fusion</div>
+  <div class="section-sub">7 expert fraud rules combined with ML scores — Hybrid Risk Score captures 94.7% of ML-detected anomalies</div>
+
+  <!-- Key metrics row -->
+  <div class="card-grid cols-4" style="margin-bottom:20px;">
+    <div class="card" style="text-align:center; background:var(--black); color:#fff; border:none;">
+      <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.4); margin-bottom:8px;">Rule Recall</div>
+      <div style="font-size:36px; font-weight:900; color:#fff;">94.7%</div>
+      <div style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:4px;">rules catch ML-detected anomalies</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:8px;">Critical Risk</div>
+      <div style="font-size:36px; font-weight:900; color:var(--red);">24</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">0.05% — highest risk transactions</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:8px;">High Risk</div>
+      <div style="font-size:36px; font-weight:900; color:var(--orange);">3,028</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">6.1% of all transactions</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:8px;">Rules Triggered</div>
+      <div style="font-size:36px; font-weight:900; color:var(--brown);">61.9%</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">transactions trigger ≥ 1 rule</div>
+    </div>
+  </div>
+
+  <!-- Rule table + Hybrid distribution -->
+  <div class="card-grid cols-2" style="margin-bottom:20px;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">7 Expert Fraud Rules</div>
+        <span class="card-tag tag-dark">Rule Engine</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Rule</th><th>Trigger Rate</th><th>Severity</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700;">Login Attempts ≥ 3</td>
+            <td>3.85%</td>
+            <td><span class="card-tag tag-red" style="font-size:10px;">Critical</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;">Device Shared ≥ 5 Accounts</td>
+            <td style="color:var(--red); font-weight:700;">45.92%</td>
+            <td><span class="card-tag tag-red" style="font-size:10px;">Critical</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;">Amount Z-Score &gt; 2</td>
+            <td>3.39%</td>
+            <td><span class="card-tag tag-orange" style="font-size:10px;">High</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;">Amount / Balance &gt; 0.8</td>
+            <td>5.62%</td>
+            <td><span class="card-tag tag-orange" style="font-size:10px;">High</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;">Multi-Location (8+ Cities)</td>
+            <td>18.79%</td>
+            <td><span class="card-tag tag-orange" style="font-size:10px;">High</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;">Rapid Transaction (&lt; 1hr)</td>
+            <td>2.41%</td>
+            <td><span class="card-tag tag-brown" style="font-size:10px;">Medium</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;">High Velocity (3+ txn/day)</td>
+            <td style="color:var(--green); font-weight:700;">0.12%</td>
+            <td><span class="card-tag tag-brown" style="font-size:10px;">Medium</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="insight-box">
+        <div class="insight-title">Top Trigger</div>
+        <p><strong>Device Sharing</strong> triggers มากที่สุด (45.92%) → อุปกรณ์เครื่องเดียวถูกใช้หลายบัญชี เป็นสัญญาณ fraud ที่ชัดเจน</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Hybrid Risk Distribution</div>
+        <span class="card-tag tag-brown">ML + Rules</span>
+      </div>
+      <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px; font-style:italic;">Hybrid Score = 0.5 × ML Score + 0.5 × Rule Score</div>
+      <div style="margin-top:8px;">
+        <div class="progress-row">
+          <div class="progress-label">
+            <span><span class="status-dot" style="background:var(--green)"></span> Low Risk</span>
+            <span style="font-weight:700; color:var(--green);">22,352 (44.7%)</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:44.7%; background:var(--green);"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span><span class="status-dot" style="background:var(--brown-accent)"></span> Medium Risk</span>
+            <span style="font-weight:700; color:var(--brown-accent);">24,596 (49.2%)</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:49.2%; background:var(--brown-accent);"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span><span class="status-dot" style="background:var(--orange)"></span> High Risk</span>
+            <span style="font-weight:700; color:var(--orange);">3,028 (6.1%)</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:30%; background:var(--orange);"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span><span class="status-dot" style="background:var(--red)"></span> Critical Risk</span>
+            <span style="font-weight:700; color:var(--red);">24 (0.05%)</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:4%; background:var(--red);"></div></div>
+        </div>
+      </div>
+      <div class="insight-box">
+        <div class="insight-title">Hybrid Approach</div>
+        <p>Hybrid Score รวม ML กับ Rules → <strong>94.7% recall</strong> สำหรับ consensus anomalies พร้อม interpretability จาก rule-based reasoning</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pipeline Architecture -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Full Pipeline Architecture</div>
+      <span class="card-tag tag-dark">End-to-End</span>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:center; gap:8px; padding:20px 0; flex-wrap:wrap;">
+      <div style="background:var(--black); color:#fff; padding:10px 16px; border-radius:8px; font-size:12px; font-weight:700; text-align:center;">
+        Raw Data<br><span style="font-size:10px; opacity:0.5;">50K Transactions</span>
+      </div>
+      <div style="color:var(--text-dim); font-size:18px;">→</div>
+      <div style="background:var(--brown); color:#fff; padding:10px 16px; border-radius:8px; font-size:12px; font-weight:700; text-align:center;">
+        EDA<br><span style="font-size:10px; opacity:0.7;">Data Quality</span>
+      </div>
+      <div style="color:var(--text-dim); font-size:18px;">→</div>
+      <div style="background:var(--brown-light); color:#fff; padding:10px 16px; border-radius:8px; font-size:12px; font-weight:700; text-align:center;">
+        Features<br><span style="font-size:10px; opacity:0.7;">~30 Derived</span>
+      </div>
+      <div style="color:var(--text-dim); font-size:18px;">→</div>
+      <div style="background:var(--brown-warm); color:#fff; padding:10px 16px; border-radius:8px; font-size:12px; font-weight:700; text-align:center;">
+        ML Models<br><span style="font-size:10px; opacity:0.7;">ISO + DBSCAN + LOF</span>
+      </div>
+      <div style="color:var(--text-dim); font-size:18px;">→</div>
+      <div style="background:var(--orange); color:#fff; padding:10px 16px; border-radius:8px; font-size:12px; font-weight:700; text-align:center;">
+        Rule Engine<br><span style="font-size:10px; opacity:0.7;">7 Expert Rules</span>
+      </div>
+      <div style="color:var(--text-dim); font-size:18px;">→</div>
+      <div style="background:var(--red); color:#fff; padding:10px 16px; border-radius:8px; font-size:12px; font-weight:700; text-align:center;">
+        Hybrid Score<br><span style="font-size:10px; opacity:0.7;">ML + Rules</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="slide-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SLIDE 8: Next Steps -->
 <!-- ═══════════════════════════════════════════════════ -->
 <section class="slide" id="next-steps">
-  <div class="section-num">06 — Next Steps</div>
+  <div class="section-num">07 — Next Steps</div>
   <div class="section-title">Roadmap & Recommendations</div>
   <div class="section-sub">Completed phases and strategic action plan for the fraud detection pipeline</div>
 
