@@ -112,7 +112,7 @@
   @keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
 
   /* ── Hero Section ── */
-  .hero { text-align: center; padding-top: 140px; }
+  .hero { text-align: center; padding-top: 120px; }
   .hero-badge {
     display: inline-flex; align-items: center; gap: 8px;
     background: var(--white); border: 1px solid var(--card-border);
@@ -134,23 +134,110 @@
   }
   .hero h1 span { color: var(--brown); }
   .hero p { font-size: 17px; color: var(--text-dim); max-width: 580px; margin: 0 auto 48px; line-height: 1.7; }
-  .hero-stats {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
-    max-width: 900px; margin: 0 auto;
+
+  /* ── Bento Grid ── */
+  .bento {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 14px;
+    max-width: 1100px; margin: 0 auto;
   }
-  .hero-stat {
+  .bento-cell {
     background: var(--white); border: 1px solid var(--card-border);
-    border-radius: 12px; padding: 28px 20px; text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
+    border-radius: 16px; padding: 28px;
+    position: relative; overflow: hidden;
+    transition: transform 0.4s cubic-bezier(.25,.46,.45,.94), box-shadow 0.4s;
   }
-  .hero-stat:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
-  .hero-stat .num {
-    font-size: 36px; font-weight: 900; color: var(--black);
-    font-variant-numeric: tabular-nums; letter-spacing: -1px;
+  .bento-cell:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+
+  /* Bento: large featured cell */
+  .bento-featured {
+    grid-column: span 2; grid-row: span 2;
+    background: var(--black); color: #fff;
+    display: flex; flex-direction: column; justify-content: space-between;
+    min-height: 320px;
   }
-  .hero-stat .num.brown { color: var(--brown); }
-  .hero-stat .num.warm { color: var(--brown-warm); }
-  .hero-stat .label { font-size: 11px; color: var(--text-dim); margin-top: 6px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+  .bento-featured:hover { box-shadow: 0 16px 48px rgba(0,0,0,0.2); }
+  .bento-featured .bf-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 2px; color: rgba(255,255,255,0.5);
+  }
+  .bento-featured .bf-number {
+    font-size: 86px; font-weight: 900; letter-spacing: -4px;
+    line-height: 1; margin: 8px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .bento-featured .bf-sub {
+    font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6;
+  }
+  .bento-featured .bf-sparkline {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+    opacity: 0.15;
+  }
+
+  /* Bento: standard cells */
+  .bento-std { display: flex; flex-direction: column; justify-content: space-between; min-height: 150px; }
+  .bento-std .bs-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--text-dim);
+  }
+  .bento-std .bs-number {
+    font-size: 44px; font-weight: 900; letter-spacing: -2px;
+    line-height: 1; margin: 6px 0 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .bento-std .bs-detail { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+  /* Bento: accent cell (brown) */
+  .bento-accent {
+    background: var(--brown); color: #fff;
+    display: flex; flex-direction: column; justify-content: space-between;
+    min-height: 150px;
+  }
+  .bento-accent:hover { box-shadow: 0 12px 40px rgba(107,58,42,0.2); }
+  .bento-accent .bs-label { color: rgba(255,255,255,0.55); }
+  .bento-accent .bs-number { color: #fff; }
+  .bento-accent .bs-detail { color: rgba(255,255,255,0.6); }
+
+  /* Bento: wide cell */
+  .bento-wide { grid-column: span 2; }
+
+  /* Bento: mini chart ring */
+  .bento-ring {
+    position: absolute; top: 20px; right: 20px;
+    width: 56px; height: 56px;
+  }
+  .bento-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .bento-ring circle {
+    fill: none; stroke-width: 5; stroke-linecap: round;
+  }
+  .ring-bg { stroke: rgba(0,0,0,0.06); }
+  .ring-fill { stroke: var(--brown); stroke-dasharray: 0 157; transition: stroke-dasharray 2s ease; }
+  .ring-fill.dark { stroke: rgba(255,255,255,0.25); }
+
+  /* Bento: dot matrix */
+  .dot-matrix {
+    display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px;
+    position: absolute; bottom: 20px; right: 20px; width: 90px;
+  }
+  .dot-matrix .dm-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cream-dark);
+    transition: background 0.3s;
+  }
+  .dot-matrix .dm-dot.active { background: var(--brown); }
+
+  /* Bento: bar sparks */
+  .bar-sparks {
+    display: flex; align-items: flex-end; gap: 3px;
+    height: 40px; margin-top: auto;
+  }
+  .bar-sparks .spark {
+    flex: 1; border-radius: 2px;
+    background: var(--cream-dark);
+    transition: height 1s ease;
+  }
 
   /* ── Section Headers ── */
   .section-num {
@@ -299,10 +386,16 @@
   /* ── Responsive ── */
   @media (max-width: 900px) {
     .hero h1 { font-size: 36px; }
-    .hero-stats { grid-template-columns: 1fr 1fr; }
+    .bento { grid-template-columns: 1fr 1fr; }
+    .bento-featured { min-height: 240px; }
+    .bento-featured .bf-number { font-size: 56px; }
     .card-grid.cols-2, .card-grid.cols-3, .card-grid.cols-4 { grid-template-columns: 1fr; }
     .slide { padding: 100px 20px 40px; }
     nav { padding: 0 20px; }
+  }
+  @media (max-width: 600px) {
+    .bento { grid-template-columns: 1fr; }
+    .bento-featured, .bento-wide { grid-column: span 1; }
   }
 </style>
 </head>
@@ -337,22 +430,95 @@
   <div class="hero-badge"><span class="dot"></span> Fraud Detection Intelligence</div>
   <h1>Bank Transaction<br><span>Analytics Report</span></h1>
   <p>Exploratory Data Analysis ของชุดข้อมูลธุรกรรมธนาคาร 50,000 รายการ เพื่อค้นหารูปแบบและสัญญาณความผิดปกติ</p>
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="num" data-count="50000">0</div>
-      <div class="label">Transactions</div>
+
+  <div class="bento">
+    <!-- ① Featured: Total Transactions (large cell) -->
+    <div class="bento-cell bento-featured">
+      <div>
+        <div class="bf-label">Total Transactions Analyzed</div>
+        <div class="bf-number" data-count="50000">0</div>
+        <div class="bf-sub">Jan 2020 — Dec 2025 &mdash; Synthetic Dataset<br>Avg $297.87 per transaction &bull; $14.8M total volume</div>
+      </div>
+      <!-- Sparkline SVG -->
+      <svg class="bf-sparkline" viewBox="0 0 500 80" preserveAspectRatio="none">
+        <polyline fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"
+          points="0,60 30,55 60,50 90,58 120,45 150,52 180,40 210,48 240,35 270,42 300,30 330,38 360,25 390,32 420,20 450,28 480,15 500,22"/>
+        <polyline fill="url(#sparkGrad)" stroke="none"
+          points="0,60 30,55 60,50 90,58 120,45 150,52 180,40 210,48 240,35 270,42 300,30 330,38 360,25 390,32 420,20 450,28 480,15 500,22 500,80 0,80"/>
+        <defs><linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.2)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+        </linearGradient></defs>
+      </svg>
     </div>
-    <div class="hero-stat">
-      <div class="num brown" data-count="495">0</div>
-      <div class="label">Accounts</div>
+
+    <!-- ② Accounts -->
+    <div class="bento-cell bento-std">
+      <div>
+        <div class="bs-label">Accounts</div>
+        <div class="bs-number" data-count="495" style="color:var(--brown);">0</div>
+        <div class="bs-detail">~101 txn per account avg</div>
+      </div>
+      <!-- Ring chart: account activity -->
+      <div class="bento-ring">
+        <svg viewBox="0 0 56 56">
+          <circle class="ring-bg" cx="28" cy="28" r="25"/>
+          <circle class="ring-fill" id="ringAcct" cx="28" cy="28" r="25" data-pct="82"/>
+        </svg>
+      </div>
+      <div class="bar-sparks" id="sparkAcct"></div>
     </div>
-    <div class="hero-stat">
-      <div class="num warm" data-count="43">0</div>
-      <div class="label">Locations</div>
+
+    <!-- ③ Locations -->
+    <div class="bento-cell bento-accent">
+      <div>
+        <div class="bs-label">Locations</div>
+        <div class="bs-number" data-count="43">0</div>
+        <div class="bs-detail">Across US cities</div>
+      </div>
+      <!-- Dot matrix: cities -->
+      <div class="dot-matrix" id="dotCities"></div>
     </div>
-    <div class="hero-stat">
-      <div class="num" data-count="6">0</div>
-      <div class="label">Years of Data</div>
+
+    <!-- ④ Date Range -->
+    <div class="bento-cell bento-std">
+      <div>
+        <div class="bs-label">Date Range</div>
+        <div class="bs-number" style="font-size:36px; letter-spacing:-1px;">6 <span style="font-size:18px; font-weight:600; letter-spacing:0; color:var(--text-dim);">years</span></div>
+        <div class="bs-detail">2020 &mdash; 2025</div>
+      </div>
+      <!-- Year timeline -->
+      <div style="display:flex; gap:4px; margin-top:auto;">
+        <div class="yr-block" style="flex:1; height:6px; border-radius:3px; background:var(--black);"></div>
+        <div class="yr-block" style="flex:1; height:6px; border-radius:3px; background:var(--brown);"></div>
+        <div class="yr-block" style="flex:1; height:6px; border-radius:3px; background:var(--brown-warm);"></div>
+        <div class="yr-block" style="flex:1; height:6px; border-radius:3px; background:var(--brown-accent);"></div>
+        <div class="yr-block" style="flex:1; height:6px; border-radius:3px; background:var(--light-gray);"></div>
+        <div class="yr-block" style="flex:1; height:6px; border-radius:3px; background:var(--cream-dark);"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-top:4px;">
+        <span style="font-size:9px; color:var(--text-dim);">2020</span>
+        <span style="font-size:9px; color:var(--text-dim);">2025</span>
+      </div>
+    </div>
+
+    <!-- ⑤ Alert: Fraud Signals (wide cell) -->
+    <div class="bento-cell bento-wide" style="background:var(--cream); border:1px dashed var(--brown-accent); display:flex; align-items:center; gap:24px; padding:22px 28px;">
+      <div style="width:48px; height:48px; border-radius:50%; background:rgba(198,40,40,0.08); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:22px;">&#9888;</div>
+      <div style="flex:1;">
+        <div style="font-size:13px; font-weight:700; color:var(--black); margin-bottom:2px;">Fraud Signals Detected</div>
+        <div style="font-size:12px; color:var(--text-dim); line-height:1.6;">
+          <strong style="color:var(--red);">4.75%</strong> amount outliers &bull;
+          <strong style="color:var(--orange);">3.85%</strong> suspicious logins &bull;
+          <strong style="color:var(--red);">609</strong> shared devices &bull;
+          <strong style="color:var(--orange);">266</strong> multi-city accounts
+        </div>
+      </div>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <div style="width:8px; height:8px; border-radius:50%; background:var(--red); animation: pulse 1.5s infinite;"></div>
+        <div style="width:8px; height:8px; border-radius:50%; background:var(--orange); animation: pulse 1.5s infinite 0.3s;"></div>
+        <div style="width:8px; height:8px; border-radius:50%; background:var(--red); animation: pulse 1.5s infinite 0.6s;"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -1015,6 +1181,48 @@ window.addEventListener('scroll', () => {
 });
 
 animateCounters();
+
+// ── Bento Micro-Animations ──
+
+// Ring charts
+document.querySelectorAll('.ring-fill').forEach(ring => {
+  const pct = parseInt(ring.dataset.pct) || 0;
+  const circumference = 2 * Math.PI * 25; // r=25
+  setTimeout(() => {
+    ring.style.strokeDasharray = `${circumference * pct / 100} ${circumference}`;
+  }, 500);
+});
+
+// Dot matrix for cities
+const dotContainer = document.getElementById('dotCities');
+if (dotContainer) {
+  for (let i = 0; i < 50; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dm-dot';
+    if (i < 43) { // 43 cities
+      dot.classList.add('active');
+      dot.style.background = 'rgba(255,255,255,0.35)';
+      dot.style.transitionDelay = (i * 30) + 'ms';
+    } else {
+      dot.style.background = 'rgba(255,255,255,0.1)';
+    }
+    dotContainer.appendChild(dot);
+  }
+}
+
+// Spark bars for accounts
+const sparkAcct = document.getElementById('sparkAcct');
+if (sparkAcct) {
+  const heights = [60, 45, 80, 55, 70, 90, 40, 65, 85, 50, 75, 95];
+  heights.forEach((h, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'spark';
+    bar.style.height = '4px';
+    bar.style.background = i % 3 === 0 ? 'var(--brown)' : 'var(--cream-dark)';
+    sparkAcct.appendChild(bar);
+    setTimeout(() => { bar.style.height = h + '%'; }, 300 + i * 80);
+  });
+}
 </script>
 </body>
 </html>
