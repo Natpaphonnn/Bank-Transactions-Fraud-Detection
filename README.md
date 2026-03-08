@@ -12,6 +12,7 @@ https://natpaphonnn.github.io/Bank-Transactions-Fraud-Detection/presentation.htm
 |------|-------------|
 | `01_EDA_Bank_Transactions.ipynb` | Exploratory Data Analysis — data overview, distributions, anomaly indicators |
 | `02_Feature_Engineering_and_Anomaly_Detection.ipynb` | Feature Engineering (~30 features) + 3 Anomaly Detection models |
+| `03_Model_Evaluation_and_Comparison.ipynb` | Model evaluation, comparison, sensitivity analysis & business insights |
 | `presentation.html` | Interactive presentation website (banking theme) |
 | `bank_transactions.csv` | Raw dataset — 50,000 synthetic bank transactions |
 
