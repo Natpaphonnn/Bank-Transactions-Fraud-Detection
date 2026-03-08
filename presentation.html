@@ -139,8 +139,7 @@
   /* ── Bento Grid ── */
   .bento {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: auto auto;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 14px;
     max-width: 1100px; margin: 0 auto;
   }
@@ -152,92 +151,124 @@
   }
   .bento-cell:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
 
-  /* Bento: large featured cell */
-  .bento-featured {
-    grid-column: span 2; grid-row: span 2;
-    background: var(--black); color: #fff;
+  /* Bento: stat card (all 3 top cards) */
+  .bento-stat {
     display: flex; flex-direction: column; justify-content: space-between;
-    min-height: 320px;
+    min-height: 180px; text-align: left;
   }
-  .bento-featured:hover { box-shadow: 0 16px 48px rgba(0,0,0,0.2); }
-  .bento-featured .bf-label {
-    font-size: 11px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 2px; color: rgba(255,255,255,0.5);
-  }
-  .bento-featured .bf-number {
-    font-size: 86px; font-weight: 900; letter-spacing: -4px;
-    line-height: 1; margin: 8px 0;
-    font-variant-numeric: tabular-nums;
-  }
-  .bento-featured .bf-sub {
-    font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6;
-  }
-  .bento-featured .bf-sparkline {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
-    opacity: 0.15;
-  }
-
-  /* Bento: standard cells */
-  .bento-std { display: flex; flex-direction: column; justify-content: space-between; min-height: 150px; }
-  .bento-std .bs-label {
+  .bento-stat .bs-label {
     font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 2px; color: var(--text-dim);
+    letter-spacing: 2px; color: var(--text-dim); margin-bottom: 12px;
   }
-  .bento-std .bs-number {
-    font-size: 44px; font-weight: 900; letter-spacing: -2px;
-    line-height: 1; margin: 6px 0 2px;
-    font-variant-numeric: tabular-nums;
+  .bento-stat .bs-number {
+    font-size: 52px; font-weight: 900; letter-spacing: -2px;
+    line-height: 1; margin-bottom: 4px;
+    font-variant-numeric: tabular-nums; color: var(--black);
   }
-  .bento-std .bs-detail { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
-
-  /* Bento: accent cell (brown) */
-  .bento-accent {
-    background: var(--brown); color: #fff;
-    display: flex; flex-direction: column; justify-content: space-between;
-    min-height: 150px;
+  .bento-stat .bs-sub {
+    font-size: 12px; color: var(--text-dim); line-height: 1.5; margin-bottom: 16px;
   }
-  .bento-accent:hover { box-shadow: 0 12px 40px rgba(107,58,42,0.2); }
-  .bento-accent .bs-label { color: rgba(255,255,255,0.55); }
-  .bento-accent .bs-number { color: #fff; }
-  .bento-accent .bs-detail { color: rgba(255,255,255,0.6); }
-
-  /* Bento: wide cell */
-  .bento-wide { grid-column: span 2; }
-
-  /* Bento: mini chart ring */
-  .bento-ring {
-    position: absolute; top: 20px; right: 20px;
-    width: 56px; height: 56px;
-  }
-  .bento-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-  .bento-ring circle {
-    fill: none; stroke-width: 5; stroke-linecap: round;
-  }
-  .ring-bg { stroke: rgba(0,0,0,0.06); }
-  .ring-fill { stroke: var(--brown); stroke-dasharray: 0 157; transition: stroke-dasharray 2s ease; }
-  .ring-fill.dark { stroke: rgba(255,255,255,0.25); }
-
-  /* Bento: dot matrix */
-  .dot-matrix {
-    display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px;
-    position: absolute; bottom: 20px; right: 20px; width: 90px;
-  }
-  .dot-matrix .dm-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--cream-dark);
-    transition: background 0.3s;
-  }
-  .dot-matrix .dm-dot.active { background: var(--brown); }
+  .bento-stat .bs-visual { margin-top: auto; }
 
   /* Bento: bar sparks */
   .bar-sparks {
-    display: flex; align-items: flex-end; gap: 3px;
-    height: 40px; margin-top: auto;
+    display: flex; align-items: flex-end; gap: 3px; height: 44px;
   }
   .bar-sparks .spark {
-    flex: 1; border-radius: 2px;
+    flex: 1; border-radius: 3px 3px 0 0;
     background: var(--cream-dark);
     transition: height 1s ease;
+  }
+
+  /* Globe section */
+  .globe-section {
+    grid-column: span 3;
+    display: grid; grid-template-columns: 1fr 320px;
+    background: var(--black); border-radius: 16px;
+    min-height: 480px; padding: 0; overflow: hidden;
+    border: none;
+  }
+  .globe-section:hover { box-shadow: 0 16px 48px rgba(0,0,0,0.25); transform: translateY(-4px); }
+  .globe-viewport {
+    position: relative; cursor: grab; min-height: 480px;
+  }
+  #globeContainer { position: absolute; inset: 0; }
+  .globe-overlay-tl {
+    position: absolute; top: 28px; left: 32px; z-index: 10; pointer-events: none;
+  }
+  .globe-overlay-tl .go-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 2px; color: rgba(255,255,255,0.4);
+  }
+  .globe-overlay-tl .go-number {
+    font-size: 64px; font-weight: 900; color: #fff;
+    letter-spacing: -3px; line-height: 1; margin: 4px 0;
+  }
+  .globe-overlay-tl .go-sub {
+    font-size: 13px; color: rgba(255,255,255,0.4);
+  }
+
+  /* Globe tooltip */
+  .globe-tooltip {
+    position: absolute; z-index: 20; pointer-events: none;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+    border: 1px solid rgba(196,149,106,0.3);
+    border-radius: 10px; padding: 12px 16px;
+    color: #fff; opacity: 0; transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+  .globe-tooltip.visible { opacity: 1; }
+  .globe-tooltip .tt-city { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .globe-tooltip .tt-count { font-size: 12px; color: var(--brown-accent); }
+
+  /* City sidebar */
+  .globe-sidebar {
+    background: rgba(255,255,255,0.03);
+    border-left: 1px solid rgba(255,255,255,0.06);
+    padding: 24px 20px;
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  .globe-sidebar .gs-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 2px; color: rgba(255,255,255,0.35);
+    margin-bottom: 16px;
+  }
+  .city-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 8px;
+    cursor: pointer; transition: background 0.2s;
+    border: 1px solid transparent;
+  }
+  .city-item:hover { background: rgba(255,255,255,0.06); }
+  .city-item.active {
+    background: rgba(196,149,106,0.12);
+    border-color: rgba(196,149,106,0.3);
+  }
+  .city-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--brown-accent); flex-shrink: 0;
+    transition: transform 0.3s;
+  }
+  .city-item.active .city-dot { transform: scale(1.5); }
+  .city-name {
+    font-size: 12px; color: rgba(255,255,255,0.7); flex: 1;
+    font-weight: 500;
+  }
+  .city-item.active .city-name { color: #fff; font-weight: 600; }
+  .city-count {
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.3);
+    font-variant-numeric: tabular-nums;
+  }
+  .city-item.active .city-count { color: var(--brown-accent); }
+  .city-bar-bg {
+    flex: 1; height: 3px; border-radius: 2px;
+    background: rgba(255,255,255,0.06); overflow: hidden;
+    max-width: 60px;
+  }
+  .city-bar-fill {
+    height: 100%; border-radius: 2px;
+    background: var(--brown-accent); transition: width 0.5s;
   }
 
   /* ── Section Headers ── */
@@ -393,18 +424,17 @@
   }
 
   /* ── Responsive ── */
+  @media (max-width: 1100px) {
+    .globe-section { grid-template-columns: 1fr 240px; }
+  }
   @media (max-width: 900px) {
     .hero h1 { font-size: 36px; }
-    .bento { grid-template-columns: 1fr 1fr; }
-    .bento-featured { min-height: 240px; }
-    .bento-featured .bf-number { font-size: 56px; }
+    .bento { grid-template-columns: 1fr; }
+    .globe-section { grid-column: span 1; grid-template-columns: 1fr; min-height: 380px; }
+    .globe-sidebar { display: none; }
     .card-grid.cols-2, .card-grid.cols-3, .card-grid.cols-4 { grid-template-columns: 1fr; }
     .slide { padding: 100px 20px 40px; }
     nav { padding: 0 20px; }
-  }
-  @media (max-width: 600px) {
-    .bento { grid-template-columns: 1fr; }
-    .bento-featured, .bento-wide { grid-column: span 1; }
   }
 </style>
 </head>
@@ -441,103 +471,71 @@
   <p>Exploratory Data Analysis ของชุดข้อมูลธุรกรรมธนาคาร 50,000 รายการ เพื่อค้นหารูปแบบและสัญญาณความผิดปกติ</p>
 
   <div class="bento">
-    <!-- ① Featured: Total Transactions (large cell) -->
-    <div class="bento-cell bento-featured">
-      <div>
-        <div class="bf-label">Total Transactions Analyzed</div>
-        <div class="bf-number" data-count="50000">0</div>
-        <div class="bf-sub">Jan 2020 — Dec 2025 &mdash; Synthetic Dataset<br>Avg $297.87 per transaction &bull; $14.8M total volume</div>
-      </div>
-      <svg class="bf-sparkline" viewBox="0 0 500 80" preserveAspectRatio="none">
-        <polyline fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"
-          points="0,60 30,55 60,50 90,58 120,45 150,52 180,40 210,48 240,35 270,42 300,30 330,38 360,25 390,32 420,20 450,28 480,15 500,22"/>
-        <polyline fill="url(#sparkGrad)" stroke="none"
-          points="0,60 30,55 60,50 90,58 120,45 150,52 180,40 210,48 240,35 270,42 300,30 330,38 360,25 390,32 420,20 450,28 480,15 500,22 500,80 0,80"/>
-        <defs><linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.2)"/>
-          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
-        </linearGradient></defs>
-      </svg>
-    </div>
-
-    <!-- ② Accounts -->
-    <div class="bento-cell bento-std">
-      <div>
-        <div class="bs-label">Accounts</div>
-        <div class="bs-number" data-count="495" style="color:var(--brown);">0</div>
-        <div class="bs-detail">~101 txn per account avg</div>
-      </div>
-      <div class="bento-ring">
-        <svg viewBox="0 0 56 56">
-          <circle class="ring-bg" cx="28" cy="28" r="25"/>
-          <circle class="ring-fill" id="ringAcct" cx="28" cy="28" r="25" data-pct="82"/>
+    <!-- Row 1: Three equal stat cards -->
+    <div class="bento-cell bento-stat">
+      <div class="bs-label">Total Transactions</div>
+      <div class="bs-number" data-count="50000">0</div>
+      <div class="bs-sub">Avg $297.87 per transaction</div>
+      <div class="bs-visual">
+        <svg width="100%" height="40" viewBox="0 0 300 40" preserveAspectRatio="none">
+          <polyline fill="none" stroke="var(--brown-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            points="0,35 20,30 40,28 60,32 80,22 100,26 120,18 140,24 160,14 180,20 200,12 220,18 240,8 260,14 280,6 300,10"/>
+          <polyline fill="url(#sparkFill)" stroke="none"
+            points="0,35 20,30 40,28 60,32 80,22 100,26 120,18 140,24 160,14 180,20 200,12 220,18 240,8 260,14 280,6 300,10 300,40 0,40"/>
+          <defs><linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(107,58,42,0.15)"/>
+            <stop offset="100%" stop-color="rgba(107,58,42,0)"/>
+          </linearGradient></defs>
         </svg>
       </div>
-      <div class="bar-sparks" id="sparkAcct"></div>
     </div>
 
-    <!-- ③ Date Range -->
-    <div class="bento-cell bento-std">
-      <div>
-        <div class="bs-label">Date Range</div>
-        <div class="bs-number" style="font-size:36px; letter-spacing:-1px;">6 <span style="font-size:18px; font-weight:600; letter-spacing:0; color:var(--text-dim);">years</span></div>
-        <div class="bs-detail">2020 &mdash; 2025</div>
-      </div>
-      <div style="display:flex; gap:4px; margin-top:auto;">
-        <div style="flex:1; height:6px; border-radius:3px; background:var(--black);"></div>
-        <div style="flex:1; height:6px; border-radius:3px; background:var(--brown);"></div>
-        <div style="flex:1; height:6px; border-radius:3px; background:var(--brown-warm);"></div>
-        <div style="flex:1; height:6px; border-radius:3px; background:var(--brown-accent);"></div>
-        <div style="flex:1; height:6px; border-radius:3px; background:var(--light-gray);"></div>
-        <div style="flex:1; height:6px; border-radius:3px; background:var(--cream-dark);"></div>
-      </div>
-      <div style="display:flex; justify-content:space-between; margin-top:4px;">
-        <span style="font-size:9px; color:var(--text-dim);">2020</span>
-        <span style="font-size:9px; color:var(--text-dim);">2025</span>
+    <div class="bento-cell bento-stat">
+      <div class="bs-label">Accounts</div>
+      <div class="bs-number" style="color:var(--brown);" data-count="495">0</div>
+      <div class="bs-sub">~101 transactions per account</div>
+      <div class="bs-visual">
+        <div class="bar-sparks" id="sparkAcct"></div>
       </div>
     </div>
 
-    <!-- ④ 3D Globe: Locations (spans full bottom row) -->
-    <div class="bento-cell" style="grid-column: span 4; padding:0; overflow:hidden; position:relative; min-height:420px; background:var(--black); border-radius:16px;">
-      <div id="globeContainer" style="width:100%; height:100%; position:absolute; inset:0; cursor:grab;"></div>
-      <!-- Overlay info -->
-      <div style="position:absolute; top:28px; left:32px; z-index:10; pointer-events:none;">
-        <div class="bs-label" style="color:rgba(255,255,255,0.45);">Transaction Locations</div>
-        <div style="font-size:52px; font-weight:900; color:#fff; letter-spacing:-2px; line-height:1;" data-count="43">0</div>
-        <div style="font-size:13px; color:rgba(255,255,255,0.45); margin-top:4px;">cities across the United States</div>
-      </div>
-      <!-- City list overlay -->
-      <div style="position:absolute; bottom:24px; left:32px; right:32px; z-index:10; pointer-events:none; display:flex; flex-wrap:wrap; gap:6px;">
-        <span class="globe-tag">New York</span>
-        <span class="globe-tag">Los Angeles</span>
-        <span class="globe-tag">Chicago</span>
-        <span class="globe-tag">Houston</span>
-        <span class="globe-tag">Phoenix</span>
-        <span class="globe-tag">Philadelphia</span>
-        <span class="globe-tag">San Antonio</span>
-        <span class="globe-tag">San Diego</span>
-        <span class="globe-tag">Dallas</span>
-        <span class="globe-tag">Miami</span>
-        <span class="globe-tag">Atlanta</span>
-        <span class="globe-tag">Seattle</span>
-        <span class="globe-tag" style="background:rgba(255,255,255,0.08);">+31 more</span>
-      </div>
-      <!-- Fraud signals overlay -->
-      <div style="position:absolute; top:28px; right:32px; z-index:10; pointer-events:none; text-align:right;">
-        <div style="display:flex; align-items:center; gap:8px; justify-content:flex-end; margin-bottom:8px;">
-          <span style="font-size:11px; color:rgba(255,255,255,0.45);">Fraud Signals Active</span>
-          <span style="width:8px; height:8px; border-radius:50%; background:var(--red); animation:pulse 1.5s infinite;"></span>
+    <div class="bento-cell bento-stat">
+      <div class="bs-label">Date Range</div>
+      <div class="bs-number">6 <span style="font-size:20px; font-weight:600; letter-spacing:0; color:var(--text-dim);">years</span></div>
+      <div class="bs-sub">Jan 2020 &mdash; Dec 2025</div>
+      <div class="bs-visual" style="display:flex; flex-direction:column; gap:4px;">
+        <div style="display:flex; gap:6px;">
+          <div style="flex:1; height:8px; border-radius:4px; background:var(--black);"></div>
+          <div style="flex:1; height:8px; border-radius:4px; background:var(--brown);"></div>
+          <div style="flex:1; height:8px; border-radius:4px; background:var(--brown-warm);"></div>
+          <div style="flex:1; height:8px; border-radius:4px; background:var(--brown-accent);"></div>
+          <div style="flex:1; height:8px; border-radius:4px; background:var(--light-gray);"></div>
+          <div style="flex:1; height:8px; border-radius:4px; background:var(--cream-dark);"></div>
         </div>
-        <div style="display:flex; gap:6px; justify-content:flex-end;">
-          <div style="background:rgba(198,40,40,0.2); border:1px solid rgba(198,40,40,0.3); border-radius:8px; padding:8px 12px; text-align:center;">
-            <div style="font-size:16px; font-weight:800; color:var(--red);">609</div>
-            <div style="font-size:9px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.5px;">Shared Devices</div>
-          </div>
-          <div style="background:rgba(230,81,0,0.15); border:1px solid rgba(230,81,0,0.3); border-radius:8px; padding:8px 12px; text-align:center;">
-            <div style="font-size:16px; font-weight:800; color:var(--orange);">1,924</div>
-            <div style="font-size:9px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.5px;">Suspicious Logins</div>
-          </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="font-size:10px; color:var(--text-dim); font-weight:600;">2020</span>
+          <span style="font-size:10px; color:var(--text-dim); font-weight:600;">2025</span>
         </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Globe + City Sidebar -->
+    <div class="bento-cell globe-section">
+      <div class="globe-viewport">
+        <div id="globeContainer"></div>
+        <div class="globe-tooltip" id="globeTooltip">
+          <div class="tt-city" id="ttCity"></div>
+          <div class="tt-count" id="ttCount"></div>
+        </div>
+        <div class="globe-overlay-tl">
+          <div class="go-label">Transaction Locations</div>
+          <div class="go-number" data-count="43">0</div>
+          <div class="go-sub">cities across the United States</div>
+        </div>
+      </div>
+      <div class="globe-sidebar">
+        <div class="gs-title">Cities by Volume</div>
+        <div id="citySidebar"></div>
       </div>
     </div>
   </div>
@@ -1217,265 +1215,271 @@ animateCounters();
   renderer.setClearColor(0x000000, 0);
   container.appendChild(renderer.domElement);
 
-  // Globe sphere
+  // Globe
   const globeGeo = new THREE.SphereGeometry(1, 64, 64);
-  const globeMat = new THREE.MeshPhongMaterial({
-    color: 0x2d2d2d,
-    transparent: true,
-    opacity: 0.95,
-    shininess: 15
-  });
+  const globeMat = new THREE.MeshPhongMaterial({ color: 0x2d2d2d, transparent: true, opacity: 0.95, shininess: 15 });
   const globe = new THREE.Mesh(globeGeo, globeMat);
   scene.add(globe);
 
-  // Wireframe overlay
-  const wireGeo = new THREE.SphereGeometry(1.002, 36, 36);
-  const wireMat = new THREE.MeshBasicMaterial({
-    color: 0x6b3a2a,
-    wireframe: true,
-    transparent: true,
-    opacity: 0.08
-  });
-  scene.add(new THREE.Mesh(wireGeo, wireMat));
+  // Wireframe
+  const wireMat = new THREE.MeshBasicMaterial({ color: 0x6b3a2a, wireframe: true, transparent: true, opacity: 0.08 });
+  scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.002, 36, 36), wireMat));
 
-  // Atmosphere glow
-  const atmosGeo = new THREE.SphereGeometry(1.08, 64, 64);
+  // Atmosphere
   const atmosMat = new THREE.ShaderMaterial({
-    vertexShader: `
-      varying vec3 vNormal;
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      varying vec3 vNormal;
-      void main() {
-        float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.5);
-        gl_FragColor = vec4(0.42, 0.23, 0.16, 1.0) * intensity * 0.6;
-      }
-    `,
-    blending: THREE.AdditiveBlending,
-    side: THREE.BackSide,
-    transparent: true
+    vertexShader: `varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader: `varying vec3 vN; void main(){ float i=pow(0.65-dot(vN,vec3(0,0,1)),2.5); gl_FragColor=vec4(0.42,0.23,0.16,1)*i*0.6; }`,
+    blending: THREE.AdditiveBlending, side: THREE.BackSide, transparent: true
   });
-  scene.add(new THREE.Mesh(atmosGeo, atmosMat));
+  scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.08, 64, 64), atmosMat));
 
   // Lighting
-  const ambient = new THREE.AmbientLight(0xffffff, 0.4);
-  scene.add(ambient);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
   const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  dirLight.position.set(5, 3, 5);
-  scene.add(dirLight);
-  const pointLight = new THREE.PointLight(0xc4956a, 0.5, 10);
-  pointLight.position.set(-3, 2, 4);
-  scene.add(pointLight);
+  dirLight.position.set(5, 3, 5); scene.add(dirLight);
+  const pLight = new THREE.PointLight(0xc4956a, 0.5, 10);
+  pLight.position.set(-3, 2, 4); scene.add(pLight);
 
-  // City coordinates (lat, lon) and transaction counts
   const cities = [
-    { name: "Fort Worth", lat: 32.75, lon: -97.33, count: 1396 },
-    { name: "Charlotte", lat: 35.23, lon: -80.84, count: 1347 },
-    { name: "Oklahoma City", lat: 35.47, lon: -97.52, count: 1345 },
-    { name: "Philadelphia", lat: 39.95, lon: -75.17, count: 1343 },
-    { name: "Memphis", lat: 35.15, lon: -90.05, count: 1330 },
-    { name: "Tucson", lat: 32.22, lon: -110.97, count: 1322 },
-    { name: "Los Angeles", lat: 34.05, lon: -118.24, count: 1318 },
-    { name: "Omaha", lat: 41.26, lon: -95.94, count: 1298 },
-    { name: "Miami", lat: 25.76, lon: -80.19, count: 1278 },
-    { name: "Denver", lat: 39.74, lon: -104.98, count: 1267 },
-    { name: "Atlanta", lat: 33.75, lon: -84.39, count: 1245 },
-    { name: "Detroit", lat: 42.33, lon: -83.05, count: 1230 },
-    { name: "Mesa", lat: 33.42, lon: -111.83, count: 1228 },
-    { name: "Houston", lat: 29.76, lon: -95.37, count: 1217 },
-    { name: "Jacksonville", lat: 30.33, lon: -81.66, count: 1216 },
-    { name: "Kansas City", lat: 39.10, lon: -94.58, count: 1211 },
-    { name: "Seattle", lat: 47.61, lon: -122.33, count: 1208 },
-    { name: "Boston", lat: 42.36, lon: -71.06, count: 1203 },
-    { name: "Chicago", lat: 41.88, lon: -87.63, count: 1195 },
-    { name: "San Antonio", lat: 29.42, lon: -98.49, count: 1195 },
-    { name: "Raleigh", lat: 35.78, lon: -78.64, count: 1187 },
-    { name: "Fresno", lat: 36.74, lon: -119.77, count: 1177 },
-    { name: "San Jose", lat: 37.34, lon: -121.89, count: 1159 },
-    { name: "Phoenix", lat: 33.45, lon: -112.07, count: 1155 },
-    { name: "New York", lat: 40.71, lon: -74.01, count: 1150 },
-    { name: "Austin", lat: 30.27, lon: -97.74, count: 1146 },
-    { name: "Colorado Springs", lat: 38.83, lon: -104.82, count: 1141 },
-    { name: "San Diego", lat: 32.72, lon: -117.16, count: 1139 },
-    { name: "Las Vegas", lat: 36.17, lon: -115.14, count: 1124 },
-    { name: "Nashville", lat: 36.16, lon: -86.78, count: 1124 },
-    { name: "San Francisco", lat: 37.77, lon: -122.42, count: 1105 },
-    { name: "Indianapolis", lat: 39.77, lon: -86.16, count: 1104 },
-    { name: "Milwaukee", lat: 43.04, lon: -87.91, count: 1100 },
-    { name: "Virginia Beach", lat: 36.85, lon: -75.98, count: 1075 },
-    { name: "Sacramento", lat: 38.58, lon: -121.49, count: 1055 },
-    { name: "Columbus", lat: 39.96, lon: -82.99, count: 1048 },
-    { name: "Louisville", lat: 38.25, lon: -85.76, count: 1031 },
-    { name: "El Paso", lat: 31.76, lon: -106.49, count: 997 },
-    { name: "Baltimore", lat: 39.29, lon: -76.61, count: 996 },
-    { name: "Dallas", lat: 32.78, lon: -96.80, count: 971 },
-    { name: "Washington", lat: 38.91, lon: -77.04, count: 964 },
-    { name: "Albuquerque", lat: 35.08, lon: -106.65, count: 849 },
-    { name: "Portland", lat: 45.52, lon: -122.68, count: 811 }
+    { name:"Fort Worth",lat:32.75,lon:-97.33,count:1396 },
+    { name:"Charlotte",lat:35.23,lon:-80.84,count:1347 },
+    { name:"Oklahoma City",lat:35.47,lon:-97.52,count:1345 },
+    { name:"Philadelphia",lat:39.95,lon:-75.17,count:1343 },
+    { name:"Memphis",lat:35.15,lon:-90.05,count:1330 },
+    { name:"Tucson",lat:32.22,lon:-110.97,count:1322 },
+    { name:"Los Angeles",lat:34.05,lon:-118.24,count:1318 },
+    { name:"Omaha",lat:41.26,lon:-95.94,count:1298 },
+    { name:"Miami",lat:25.76,lon:-80.19,count:1278 },
+    { name:"Denver",lat:39.74,lon:-104.98,count:1267 },
+    { name:"Atlanta",lat:33.75,lon:-84.39,count:1245 },
+    { name:"Detroit",lat:42.33,lon:-83.05,count:1230 },
+    { name:"Mesa",lat:33.42,lon:-111.83,count:1228 },
+    { name:"Houston",lat:29.76,lon:-95.37,count:1217 },
+    { name:"Jacksonville",lat:30.33,lon:-81.66,count:1216 },
+    { name:"Kansas City",lat:39.10,lon:-94.58,count:1211 },
+    { name:"Seattle",lat:47.61,lon:-122.33,count:1208 },
+    { name:"Boston",lat:42.36,lon:-71.06,count:1203 },
+    { name:"Chicago",lat:41.88,lon:-87.63,count:1195 },
+    { name:"San Antonio",lat:29.42,lon:-98.49,count:1195 },
+    { name:"Raleigh",lat:35.78,lon:-78.64,count:1187 },
+    { name:"Fresno",lat:36.74,lon:-119.77,count:1177 },
+    { name:"San Jose",lat:37.34,lon:-121.89,count:1159 },
+    { name:"Phoenix",lat:33.45,lon:-112.07,count:1155 },
+    { name:"New York",lat:40.71,lon:-74.01,count:1150 },
+    { name:"Austin",lat:30.27,lon:-97.74,count:1146 },
+    { name:"Colorado Springs",lat:38.83,lon:-104.82,count:1141 },
+    { name:"San Diego",lat:32.72,lon:-117.16,count:1139 },
+    { name:"Las Vegas",lat:36.17,lon:-115.14,count:1124 },
+    { name:"Nashville",lat:36.16,lon:-86.78,count:1124 },
+    { name:"San Francisco",lat:37.77,lon:-122.42,count:1105 },
+    { name:"Indianapolis",lat:39.77,lon:-86.16,count:1104 },
+    { name:"Milwaukee",lat:43.04,lon:-87.91,count:1100 },
+    { name:"Virginia Beach",lat:36.85,lon:-75.98,count:1075 },
+    { name:"Sacramento",lat:38.58,lon:-121.49,count:1055 },
+    { name:"Columbus",lat:39.96,lon:-82.99,count:1048 },
+    { name:"Louisville",lat:38.25,lon:-85.76,count:1031 },
+    { name:"El Paso",lat:31.76,lon:-106.49,count:997 },
+    { name:"Baltimore",lat:39.29,lon:-76.61,count:996 },
+    { name:"Dallas",lat:32.78,lon:-96.80,count:971 },
+    { name:"Washington",lat:38.91,lon:-77.04,count:964 },
+    { name:"Albuquerque",lat:35.08,lon:-106.65,count:849 },
+    { name:"Portland",lat:45.52,lon:-122.68,count:811 }
   ];
 
   const maxCount = Math.max(...cities.map(c => c.count));
 
-  function latLonToVec3(lat, lon, radius) {
+  function latLonToVec3(lat, lon, r) {
     const phi = (90 - lat) * Math.PI / 180;
     const theta = (lon + 180) * Math.PI / 180;
-    return new THREE.Vector3(
-      -radius * Math.sin(phi) * Math.cos(theta),
-      radius * Math.cos(phi),
-      radius * Math.sin(phi) * Math.sin(theta)
-    );
+    return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(theta), r*Math.cos(phi), r*Math.sin(phi)*Math.sin(theta));
   }
 
-  // Plot city points
+  // City points
   const pointsGroup = new THREE.Group();
-  cities.forEach((city, i) => {
+  const cityMeshes = [];
+  cities.forEach(city => {
     const ratio = city.count / maxCount;
     const size = 0.008 + ratio * 0.018;
     const pos = latLonToVec3(city.lat, city.lon, 1.01);
 
-    // Glowing point
     const dotGeo = new THREE.SphereGeometry(size, 12, 12);
     const dotMat = new THREE.MeshBasicMaterial({ color: 0xc4956a });
     const dot = new THREE.Mesh(dotGeo, dotMat);
     dot.position.copy(pos);
+    dot.userData = { cityName: city.name, cityCount: city.count, baseSize: size };
     pointsGroup.add(dot);
+    cityMeshes.push(dot);
 
-    // Outer glow ring
-    const ringGeo = new THREE.RingGeometry(size * 1.5, size * 2.5, 16);
-    const ringMat = new THREE.MeshBasicMaterial({
-      color: 0xc4956a,
-      transparent: true,
-      opacity: 0.2 + ratio * 0.3,
-      side: THREE.DoubleSide
-    });
+    const ringGeo = new THREE.RingGeometry(size*1.5, size*2.5, 16);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xc4956a, transparent: true, opacity: 0.2+ratio*0.3, side: THREE.DoubleSide });
     const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.position.copy(pos);
-    ring.lookAt(0, 0, 0);
+    ring.position.copy(pos); ring.lookAt(0,0,0);
     pointsGroup.add(ring);
 
-    // Vertical beam (pillar) for top cities
     if (ratio > 0.85) {
-      const beamHeight = 0.05 + ratio * 0.12;
-      const beamGeo = new THREE.CylinderGeometry(0.003, 0.003, beamHeight, 6);
-      const beamMat = new THREE.MeshBasicMaterial({
-        color: 0xc4956a,
-        transparent: true,
-        opacity: 0.5
-      });
+      const bh = 0.05 + ratio * 0.12;
+      const beamGeo = new THREE.CylinderGeometry(0.003, 0.003, bh, 6);
+      const beamMat = new THREE.MeshBasicMaterial({ color: 0xc4956a, transparent: true, opacity: 0.5 });
       const beam = new THREE.Mesh(beamGeo, beamMat);
-      const outerPos = latLonToVec3(city.lat, city.lon, 1.01 + beamHeight / 2);
-      beam.position.copy(outerPos);
-      beam.lookAt(0, 0, 0);
-      beam.rotateX(Math.PI / 2);
+      beam.position.copy(latLonToVec3(city.lat, city.lon, 1.01 + bh/2));
+      beam.lookAt(0,0,0); beam.rotateX(Math.PI/2);
       pointsGroup.add(beam);
     }
   });
   scene.add(pointsGroup);
 
-  // Connection arcs between random city pairs
+  // Arcs
   const arcGroup = new THREE.Group();
-  const arcPairs = [
-    [0, 24], [8, 18], [6, 16], [3, 24], [9, 5],
-    [10, 14], [17, 3], [19, 13], [22, 30], [40, 25],
-    [11, 32], [28, 23]
-  ];
-  arcPairs.forEach(([a, b]) => {
-    const start = latLonToVec3(cities[a].lat, cities[a].lon, 1.015);
-    const end = latLonToVec3(cities[b].lat, cities[b].lon, 1.015);
-    const mid = start.clone().add(end).multiplyScalar(0.5);
-    mid.normalize().multiplyScalar(1.2);
-
-    const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
-    const points = curve.getPoints(32);
-    const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-    const lineMat = new THREE.LineBasicMaterial({
-      color: 0xc4956a,
-      transparent: true,
-      opacity: 0.15
-    });
-    arcGroup.add(new THREE.Line(lineGeo, lineMat));
+  [[0,24],[8,18],[6,16],[3,24],[9,5],[10,14],[17,3],[19,13],[22,30],[40,25],[11,32],[28,23]].forEach(([a,b]) => {
+    const s = latLonToVec3(cities[a].lat, cities[a].lon, 1.015);
+    const e = latLonToVec3(cities[b].lat, cities[b].lon, 1.015);
+    const m = s.clone().add(e).multiplyScalar(0.5); m.normalize().multiplyScalar(1.2);
+    const pts = new THREE.QuadraticBezierCurve3(s, m, e).getPoints(32);
+    arcGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({ color: 0xc4956a, transparent: true, opacity: 0.15 })));
   });
   scene.add(arcGroup);
 
-  // Floating particles
-  const particlesGeo = new THREE.BufferGeometry();
-  const particleCount = 200;
-  const positions = new Float32Array(particleCount * 3);
-  for (let i = 0; i < particleCount; i++) {
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-    const r = 1.15 + Math.random() * 0.3;
-    positions[i*3] = r * Math.sin(phi) * Math.cos(theta);
-    positions[i*3+1] = r * Math.cos(phi);
-    positions[i*3+2] = r * Math.sin(phi) * Math.sin(theta);
+  // Particles
+  const pGeo = new THREE.BufferGeometry();
+  const pPos = new Float32Array(200 * 3);
+  for (let i = 0; i < 200; i++) {
+    const t = Math.random()*Math.PI*2, p = Math.acos(2*Math.random()-1), r = 1.15+Math.random()*0.3;
+    pPos[i*3] = r*Math.sin(p)*Math.cos(t); pPos[i*3+1] = r*Math.cos(p); pPos[i*3+2] = r*Math.sin(p)*Math.sin(t);
   }
-  particlesGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  const particlesMat = new THREE.PointsMaterial({
-    color: 0xc4956a, size: 0.008, transparent: true, opacity: 0.3
-  });
-  scene.add(new THREE.Points(particlesGeo, particlesMat));
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xc4956a, size: 0.008, transparent: true, opacity: 0.3 })));
 
-  // Mouse interaction
-  let mouseX = 0, mouseY = 0;
-  let isDragging = false, prevMouse = { x: 0, y: 0 };
+  // State
+  let isDragging = false, prevMouse = { x:0, y:0 };
   let rotVelX = 0, rotVelY = 0;
+  let targetZoom = 2.6, currentZoom = 2.6;
+  let targetRotX = 0, targetRotY = -1.8;
+  let autoRotate = true, zoomedCity = null;
 
-  container.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    prevMouse = { x: e.clientX, y: e.clientY };
+  // Set initial rotation
+  [globe, pointsGroup, arcGroup].forEach(g => { g.rotation.y = -1.8; });
+
+  // ── Sidebar: build city list ──
+  const sidebar = document.getElementById('citySidebar');
+  if (sidebar) {
+    cities.forEach((city, i) => {
+      const ratio = city.count / maxCount;
+      const item = document.createElement('div');
+      item.className = 'city-item';
+      item.innerHTML = `
+        <div class="city-dot"></div>
+        <div class="city-name">${city.name}</div>
+        <div class="city-bar-bg"><div class="city-bar-fill" style="width:${ratio*100}%"></div></div>
+        <div class="city-count">${city.count.toLocaleString()}</div>
+      `;
+      item.addEventListener('click', () => zoomToCity(i));
+      sidebar.appendChild(item);
+    });
+  }
+
+  // ── Zoom to city ──
+  function zoomToCity(index) {
+    const city = cities[index];
+
+    // Update sidebar active state
+    document.querySelectorAll('.city-item').forEach((el, i) => {
+      el.classList.toggle('active', i === index);
+    });
+
+    if (zoomedCity === index) {
+      // Click same city again → zoom out
+      zoomedCity = null;
+      targetZoom = 2.6;
+      autoRotate = true;
+      document.querySelectorAll('.city-item').forEach(el => el.classList.remove('active'));
+      // Hide tooltip
+      const tt = document.getElementById('globeTooltip');
+      if (tt) tt.classList.remove('visible');
+      return;
+    }
+
+    zoomedCity = index;
+    autoRotate = false;
+
+    // Calculate rotation to face the city
+    const phi = (90 - city.lat) * Math.PI / 180;
+    const theta = (city.lon + 180) * Math.PI / 180;
+    targetRotY = -theta + Math.PI;
+    targetRotX = -(phi - Math.PI / 2) * 0.6;
+    targetZoom = 1.8;
+
+    // Show tooltip
+    const tt = document.getElementById('globeTooltip');
+    const ttCity = document.getElementById('ttCity');
+    const ttCount = document.getElementById('ttCount');
+    if (tt && ttCity && ttCount) {
+      ttCity.textContent = city.name;
+      ttCount.textContent = city.count.toLocaleString() + ' transactions';
+      tt.style.left = '50%';
+      tt.style.top = '42%';
+      tt.style.transform = 'translate(-50%, -50%)';
+      tt.classList.add('visible');
+    }
+
+    // Scroll sidebar item into view
+    const items = sidebar.querySelectorAll('.city-item');
+    if (items[index]) items[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // Mouse drag
+  container.addEventListener('mousedown', e => {
+    isDragging = true; prevMouse = { x: e.clientX, y: e.clientY };
     container.style.cursor = 'grabbing';
   });
-  window.addEventListener('mouseup', () => {
-    isDragging = false;
-    container.style.cursor = 'grab';
-  });
-  window.addEventListener('mousemove', (e) => {
+  window.addEventListener('mouseup', () => { isDragging = false; container.style.cursor = 'grab'; });
+  window.addEventListener('mousemove', e => {
     if (isDragging) {
       rotVelY += (e.clientX - prevMouse.x) * 0.003;
       rotVelX += (e.clientY - prevMouse.y) * 0.003;
       prevMouse = { x: e.clientX, y: e.clientY };
+      autoRotate = false; zoomedCity = null;
+      document.querySelectorAll('.city-item').forEach(el => el.classList.remove('active'));
+      const tt = document.getElementById('globeTooltip');
+      if (tt) tt.classList.remove('visible');
     }
-    const rect = container.getBoundingClientRect();
-    mouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 0.3;
-    mouseY = ((e.clientY - rect.top) / rect.height - 0.5) * 0.3;
   });
-
-  // Initial rotation to show US
-  globe.rotation.y = -1.8;
-  pointsGroup.rotation.y = -1.8;
-  arcGroup.rotation.y = -1.8;
 
   // Animate
   function animate() {
     requestAnimationFrame(animate);
 
-    // Auto-rotate
-    const autoSpeed = 0.0015;
-    globe.rotation.y += autoSpeed + rotVelY;
-    pointsGroup.rotation.y += autoSpeed + rotVelY;
-    arcGroup.rotation.y += autoSpeed + rotVelY;
+    if (zoomedCity !== null) {
+      // Smooth zoom to city
+      [globe, pointsGroup, arcGroup].forEach(g => {
+        g.rotation.y += (targetRotY - g.rotation.y) * 0.04;
+        g.rotation.x += (targetRotX - g.rotation.x) * 0.04;
+      });
+    } else if (autoRotate) {
+      const speed = 0.0015;
+      [globe, pointsGroup, arcGroup].forEach(g => {
+        g.rotation.y += speed + rotVelY;
+        g.rotation.x += rotVelX;
+      });
+    } else {
+      [globe, pointsGroup, arcGroup].forEach(g => {
+        g.rotation.y += rotVelY;
+        g.rotation.x += rotVelX;
+      });
+    }
 
-    globe.rotation.x += rotVelX;
-    pointsGroup.rotation.x += rotVelX;
-    arcGroup.rotation.x += rotVelX;
+    rotVelX *= 0.95; rotVelY *= 0.95;
 
-    rotVelX *= 0.95;
-    rotVelY *= 0.95;
-
-    // Subtle mouse parallax
-    camera.position.x += (mouseX - camera.position.x) * 0.02;
-    camera.position.y += (-mouseY - camera.position.y) * 0.02;
+    // Smooth zoom
+    currentZoom += (targetZoom - currentZoom) * 0.05;
+    camera.position.z = currentZoom;
     camera.lookAt(scene.position);
 
-    // Pulse ring animations
+    // Pulse rings
     const time = Date.now() * 0.001;
     pointsGroup.children.forEach((child, i) => {
       if (child.geometry.type === 'RingGeometry') {
-        child.material.opacity = 0.15 + Math.sin(time * 2 + i) * 0.1;
+        child.material.opacity = 0.15 + Math.sin(time*2+i)*0.1;
       }
     });
 
@@ -1483,7 +1487,6 @@ animateCounters();
   }
   animate();
 
-  // Resize
   window.addEventListener('resize', () => {
     camera.aspect = container.clientWidth / container.clientHeight;
     camera.updateProjectionMatrix();
