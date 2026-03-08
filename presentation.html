@@ -183,14 +183,14 @@
   /* Globe section */
   .globe-section {
     grid-column: span 3;
-    display: grid; grid-template-columns: 1fr 320px;
+    display: flex; flex-direction: column;
     background: var(--black); border-radius: 16px;
     min-height: 480px; padding: 0; overflow: hidden;
-    border: none;
+    border: none; position: relative;
   }
   .globe-section:hover { box-shadow: 0 16px 48px rgba(0,0,0,0.25); transform: translateY(-4px); }
   .globe-viewport {
-    position: relative; cursor: grab; min-height: 480px;
+    position: relative; cursor: grab; min-height: 440px; flex: 1;
   }
   #globeContainer { position: absolute; inset: 0; }
   .globe-overlay-tl {
@@ -208,67 +208,38 @@
     font-size: 13px; color: rgba(255,255,255,0.4);
   }
 
-  /* Globe tooltip */
-  .globe-tooltip {
-    position: absolute; z-index: 20; pointer-events: none;
-    background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-    border: 1px solid rgba(196,149,106,0.3);
-    border-radius: 10px; padding: 12px 16px;
-    color: #fff; opacity: 0; transition: opacity 0.2s;
-    white-space: nowrap;
+  /* City ticker */
+  .globe-ticker {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    overflow: hidden; position: relative;
+    height: 44px; flex-shrink: 0;
   }
-  .globe-tooltip.visible { opacity: 1; }
-  .globe-tooltip .tt-city { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-  .globe-tooltip .tt-count { font-size: 12px; color: var(--brown-accent); }
-
-  /* City sidebar */
-  .globe-sidebar {
-    background: rgba(255,255,255,0.03);
-    border-left: 1px solid rgba(255,255,255,0.06);
-    padding: 24px 20px;
-    display: flex; flex-direction: column;
-    overflow-y: auto;
+  .globe-ticker::before, .globe-ticker::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 60px; z-index: 2;
+    pointer-events: none;
   }
-  .globe-sidebar .gs-title {
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 2px; color: rgba(255,255,255,0.35);
-    margin-bottom: 16px;
+  .globe-ticker::before { left: 0; background: linear-gradient(90deg, var(--black), transparent); }
+  .globe-ticker::after { right: 0; background: linear-gradient(270deg, var(--black), transparent); }
+  .ticker-track {
+    display: flex; align-items: center; height: 100%;
+    animation: tickerScroll 40s linear infinite;
+    width: max-content;
   }
-  .city-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 10px; border-radius: 8px;
-    cursor: pointer; transition: background 0.2s;
-    border: 1px solid transparent;
+  .ticker-track:hover { animation-play-state: paused; }
+  .ticker-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 24px; white-space: nowrap; flex-shrink: 0;
   }
-  .city-item:hover { background: rgba(255,255,255,0.06); }
-  .city-item.active {
-    background: rgba(196,149,106,0.12);
-    border-color: rgba(196,149,106,0.3);
-  }
-  .city-dot {
-    width: 8px; height: 8px; border-radius: 50%;
+  .ticker-dot {
+    width: 6px; height: 6px; border-radius: 50%;
     background: var(--brown-accent); flex-shrink: 0;
-    transition: transform 0.3s;
   }
-  .city-item.active .city-dot { transform: scale(1.5); }
-  .city-name {
-    font-size: 12px; color: rgba(255,255,255,0.7); flex: 1;
-    font-weight: 500;
-  }
-  .city-item.active .city-name { color: #fff; font-weight: 600; }
-  .city-count {
-    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.3);
-    font-variant-numeric: tabular-nums;
-  }
-  .city-item.active .city-count { color: var(--brown-accent); }
-  .city-bar-bg {
-    flex: 1; height: 3px; border-radius: 2px;
-    background: rgba(255,255,255,0.06); overflow: hidden;
-    max-width: 60px;
-  }
-  .city-bar-fill {
-    height: 100%; border-radius: 2px;
-    background: var(--brown-accent); transition: width 0.5s;
+  .ticker-name { font-size: 12px; color: rgba(255,255,255,0.55); font-weight: 500; }
+  .ticker-count { font-size: 12px; color: var(--brown-accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .ticker-sep { color: rgba(255,255,255,0.1); font-size: 10px; }
+  @keyframes tickerScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
 
   /* ── Section Headers ── */
@@ -424,14 +395,10 @@
   }
 
   /* ── Responsive ── */
-  @media (max-width: 1100px) {
-    .globe-section { grid-template-columns: 1fr 240px; }
-  }
   @media (max-width: 900px) {
     .hero h1 { font-size: 36px; }
     .bento { grid-template-columns: 1fr; }
-    .globe-section { grid-column: span 1; grid-template-columns: 1fr; min-height: 380px; }
-    .globe-sidebar { display: none; }
+    .globe-section { grid-column: span 1; min-height: 380px; }
     .card-grid.cols-2, .card-grid.cols-3, .card-grid.cols-4 { grid-template-columns: 1fr; }
     .slide { padding: 100px 20px 40px; }
     nav { padding: 0 20px; }
@@ -519,24 +486,17 @@
       </div>
     </div>
 
-    <!-- Row 2: Globe + City Sidebar -->
+    <!-- Row 2: Globe + Ticker -->
     <div class="bento-cell globe-section">
       <div class="globe-viewport">
         <div id="globeContainer"></div>
-        <div class="globe-tooltip" id="globeTooltip">
-          <div class="tt-city" id="ttCity"></div>
-          <div class="tt-count" id="ttCount"></div>
-        </div>
         <div class="globe-overlay-tl">
           <div class="go-label">Transaction Locations</div>
           <div class="go-number" data-count="43">0</div>
           <div class="go-sub">cities across the United States</div>
         </div>
       </div>
-      <div class="globe-sidebar">
-        <div class="gs-title">Cities by Volume</div>
-        <div id="citySidebar"></div>
-      </div>
+      <div class="globe-ticker" id="globeTicker"></div>
     </div>
   </div>
 </section>
@@ -1354,77 +1314,32 @@ animateCounters();
   let isDragging = false, prevMouse = { x:0, y:0 };
   let rotVelX = 0, rotVelY = 0;
   let targetZoom = 2.6, currentZoom = 2.6;
-  let targetRotX = 0, targetRotY = -1.8;
-  let autoRotate = true, zoomedCity = null;
+  let autoRotate = true;
 
   // Set initial rotation
   [globe, pointsGroup, arcGroup].forEach(g => { g.rotation.y = -1.8; });
 
-  // ── Sidebar: build city list ──
-  const sidebar = document.getElementById('citySidebar');
-  if (sidebar) {
-    cities.forEach((city, i) => {
-      const ratio = city.count / maxCount;
+  // ── Ticker: build scrolling city list ──
+  const ticker = document.getElementById('globeTicker');
+  if (ticker) {
+    const track = document.createElement('div');
+    track.className = 'ticker-track';
+    // Duplicate cities for seamless loop
+    const allCities = [...cities, ...cities];
+    allCities.forEach((city, i) => {
+      const k = (city.count / 1000).toFixed(1);
       const item = document.createElement('div');
-      item.className = 'city-item';
-      item.innerHTML = `
-        <div class="city-dot"></div>
-        <div class="city-name">${city.name}</div>
-        <div class="city-bar-bg"><div class="city-bar-fill" style="width:${ratio*100}%"></div></div>
-        <div class="city-count">${city.count.toLocaleString()}</div>
-      `;
-      item.addEventListener('click', () => zoomToCity(i));
-      sidebar.appendChild(item);
+      item.className = 'ticker-item';
+      item.innerHTML = `<span class="ticker-dot"></span><span class="ticker-name">${city.name}</span><span class="ticker-count">${k}K</span>`;
+      track.appendChild(item);
+      if (i < allCities.length - 1) {
+        const sep = document.createElement('span');
+        sep.className = 'ticker-sep';
+        sep.textContent = '|';
+        track.appendChild(sep);
+      }
     });
-  }
-
-  // ── Zoom to city ──
-  function zoomToCity(index) {
-    const city = cities[index];
-
-    // Update sidebar active state
-    document.querySelectorAll('.city-item').forEach((el, i) => {
-      el.classList.toggle('active', i === index);
-    });
-
-    if (zoomedCity === index) {
-      // Click same city again → zoom out
-      zoomedCity = null;
-      targetZoom = 2.6;
-      autoRotate = true;
-      document.querySelectorAll('.city-item').forEach(el => el.classList.remove('active'));
-      // Hide tooltip
-      const tt = document.getElementById('globeTooltip');
-      if (tt) tt.classList.remove('visible');
-      return;
-    }
-
-    zoomedCity = index;
-    autoRotate = false;
-
-    // Calculate rotation to face the city
-    const phi = (90 - city.lat) * Math.PI / 180;
-    const theta = (city.lon + 180) * Math.PI / 180;
-    targetRotY = -theta + Math.PI;
-    targetRotX = -(phi - Math.PI / 2) * 0.6;
-    targetZoom = 1.8;
-
-    // Show tooltip
-    const tt = document.getElementById('globeTooltip');
-    const ttCity = document.getElementById('ttCity');
-    const ttCount = document.getElementById('ttCount');
-    if (tt && ttCity && ttCount) {
-      ttCity.textContent = city.name;
-      ttCount.textContent = city.count.toLocaleString() + ' transactions';
-      tt.style.left = '50%';
-      tt.style.top = '42%';
-      tt.style.transform = 'translate(-50%, -50%)';
-      tt.classList.add('visible');
-    }
-
-    // Scroll sidebar item into view
-    const items = sidebar.querySelectorAll('.city-item');
-    if (items[index]) items[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    ticker.appendChild(track);
   }
 
   // Mouse drag
@@ -1438,10 +1353,7 @@ animateCounters();
       rotVelY = (e.clientX - prevMouse.x) * 0.002;
       rotVelX = (e.clientY - prevMouse.y) * 0.002;
       prevMouse = { x: e.clientX, y: e.clientY };
-      autoRotate = false; zoomedCity = null;
-      document.querySelectorAll('.city-item').forEach(el => el.classList.remove('active'));
-      const tt = document.getElementById('globeTooltip');
-      if (tt) tt.classList.remove('visible');
+      autoRotate = false;
     }
   });
 
@@ -1449,13 +1361,7 @@ animateCounters();
   function animate() {
     requestAnimationFrame(animate);
 
-    if (zoomedCity !== null) {
-      // Smooth zoom to city
-      [globe, pointsGroup, arcGroup].forEach(g => {
-        g.rotation.y += (targetRotY - g.rotation.y) * 0.04;
-        g.rotation.x += (targetRotX - g.rotation.x) * 0.04;
-      });
-    } else if (autoRotate) {
+    if (autoRotate) {
       const speed = 0.0015;
       [globe, pointsGroup, arcGroup].forEach(g => {
         g.rotation.y += speed + rotVelY;
