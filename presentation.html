@@ -423,6 +423,7 @@
     <a href="#transactions">Transactions</a>
     <a href="#behavior">Behavior</a>
     <a href="#anomalies">Anomalies</a>
+    <a href="#model-eval">Model Evaluation</a>
     <a href="#next-steps">Next Steps</a>
   </div>
 </nav>
@@ -929,33 +930,236 @@
 <div class="slide-divider"></div>
 
 <!-- ═══════════════════════════════════════════════════ -->
-<!-- SLIDE 6: Next Steps -->
+<!-- SLIDE 6: Model Evaluation -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="slide" id="model-eval">
+  <div class="section-num">05 — Model Evaluation</div>
+  <div class="section-title">Anomaly Detection Results</div>
+  <div class="section-sub">3 Models evaluated — Isolation Forest, DBSCAN, LOF — with composite risk scoring</div>
+
+  <!-- Key metrics row -->
+  <div class="card-grid cols-4" style="margin-bottom:20px;">
+    <div class="card" style="text-align:center; background:var(--black); color:#fff; border:none;">
+      <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.4); margin-bottom:8px;">Consensus Anomalies</div>
+      <div style="font-size:36px; font-weight:900; color:#fff;">190</div>
+      <div style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:4px;">flagged by 2+ models (0.4%)</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:8px;">All 3 Agree</div>
+      <div style="font-size:36px; font-weight:900; color:var(--red);">18</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">highest confidence anomalies</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:8px;">High + Critical</div>
+      <div style="font-size:36px; font-weight:900; color:var(--orange);">129</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">risk score &gt; 0.5</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:8px;">Accounts at Risk</div>
+      <div style="font-size:36px; font-weight:900; color:var(--brown);">15</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">of 495 accounts have High+ txns</div>
+    </div>
+  </div>
+
+  <!-- Model comparison table + Agreement -->
+  <div class="card-grid cols-2" style="margin-bottom:20px;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Internal Validation Metrics</div>
+        <span class="card-tag tag-dark">Unsupervised</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Model</th><th>Anomalies</th><th>Silhouette</th><th>CH Index</th><th>DBI</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700;"><span class="status-dot" style="background:#8b5cf6"></span>Isolation Forest</td>
+            <td>2,500 (5.0%)</td>
+            <td style="color:var(--green); font-weight:700;">0.3923</td>
+            <td style="color:var(--green); font-weight:700;">2,208</td>
+            <td>2.70</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;"><span class="status-dot" style="background:#f59e0b"></span>DBSCAN</td>
+            <td>24 (0.05%)</td>
+            <td>0.5900</td>
+            <td>114</td>
+            <td style="color:var(--green); font-weight:700;">1.23</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;"><span class="status-dot" style="background:#10b981"></span>LOF</td>
+            <td>2,500 (5.0%)</td>
+            <td>0.0113</td>
+            <td>29</td>
+            <td>17.06</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="insight-box">
+        <div class="insight-title">Best Model</div>
+        <p><strong>Isolation Forest</strong> ได้ Silhouette + Calinski-Harabasz สูงสุด → แยก Normal/Anomaly ได้ชัดเจนที่สุด DBSCAN จับได้น้อยแต่แม่นยำ (DBI ต่ำสุด)</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Model Agreement</div>
+        <span class="card-tag tag-brown">Consensus</span>
+      </div>
+      <div style="margin-top:8px;">
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>0 models (Normal)</span>
+            <span style="font-weight:700; color:var(--green);">45,184 (90.4%)</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:90.4%; background:var(--green);"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>1 model only</span>
+            <span style="font-weight:700; color:var(--brown-accent);">4,626 (9.3%)</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:46%; background:var(--brown-accent);"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>2 models agree</span>
+            <span style="font-weight:700; color:var(--orange);">172 (0.3%)</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:8%; background:var(--orange);"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>All 3 models agree</span>
+            <span style="font-weight:700; color:var(--red);">18 (0.04%)</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:4%; background:var(--red);"></div></div>
+        </div>
+      </div>
+      <div class="insight-box">
+        <div class="insight-title">Overlap</div>
+        <p>Jaccard similarity ต่ำ (ISO∩LOF = 0.038) → แต่ละ model จับ anomaly คนละแบบ การรวม ensemble จึงมีประสิทธิภาพ</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risk Drivers + Anomaly Profile -->
+  <div class="card-grid cols-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Key Risk Drivers</div>
+        <span class="card-tag tag-red">Impact</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Factor</th><th>Risk Premium</th><th>Detail</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700;">Login Attempts 3+</td>
+            <td style="color:var(--red); font-weight:700;">+164.3%</td>
+            <td>Strongest single risk indicator</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;">ATM Channel</td>
+            <td style="color:var(--orange); font-weight:700;">Highest risk</td>
+            <td>Avg risk score 0.0851</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;">Student Occupation</td>
+            <td style="color:var(--orange); font-weight:700;">Highest risk</td>
+            <td>Avg risk score 0.0893</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;">Amount-to-Balance</td>
+            <td style="color:var(--red); font-weight:700;">+527%</td>
+            <td>Anomaly ratio 6x higher than normal</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Anomaly vs Normal Profile</div>
+        <span class="card-tag tag-dark">Statistical (p&lt;0.001)</span>
+      </div>
+      <div style="margin-top:8px;">
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>Transaction Amount</span>
+            <span style="font-weight:700; color:var(--red);">+99.7% higher</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:100%; background:var(--red);"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>Daily Txn Count</span>
+            <span style="font-weight:700; color:var(--orange);">+79.0% higher</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:79%; background:var(--orange);"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>Login Attempts</span>
+            <span style="font-weight:700; color:var(--brown);">+67.5% higher</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:67.5%; background:var(--brown);"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>Amount Z-Score</span>
+            <span style="font-weight:700; color:var(--red);">+3,704% higher</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:100%; background:var(--red);"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>Unique Devices</span>
+            <span style="font-weight:700; color:var(--brown-accent);">+13.8% higher</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:13.8%; background:var(--brown-accent);"></div></div>
+        </div>
+      </div>
+      <div class="insight-box">
+        <div class="insight-title">All Significant</div>
+        <p>ทุก feature มีความแตกต่างอย่างมีนัยสำคัญทางสถิติ (Mann-Whitney U test, p&lt;0.001)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="slide-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SLIDE 7: Next Steps -->
 <!-- ═══════════════════════════════════════════════════ -->
 <section class="slide" id="next-steps">
-  <div class="section-num">05 — Next Steps</div>
+  <div class="section-num">06 — Next Steps</div>
   <div class="section-title">Roadmap & Recommendations</div>
-  <div class="section-sub">Strategic action plan for the fraud detection pipeline</div>
+  <div class="section-sub">Completed phases and strategic action plan for the fraud detection pipeline</div>
 
   <div class="card-grid cols-4" style="margin-bottom:24px;">
-    <div class="step-card">
-      <div class="step-num">1</div>
+    <div class="step-card" style="border-color:var(--green); background:rgba(46,125,50,0.03);">
+      <div class="step-num" style="background:var(--green);">&#10003;</div>
       <h3>Feature Engineering</h3>
-      <p>Build derived features: transaction velocity, device switching rate, amount z-scores per account</p>
+      <p>~30 derived features: z-scores, velocity, device sharing, amount ratios, rapid txn flags</p>
     </div>
-    <div class="step-card">
-      <div class="step-num">2</div>
+    <div class="step-card" style="border-color:var(--green); background:rgba(46,125,50,0.03);">
+      <div class="step-num" style="background:var(--green);">&#10003;</div>
       <h3>Anomaly Detection</h3>
-      <p>Deploy Isolation Forest, DBSCAN, and Autoencoder for unsupervised fraud detection</p>
+      <p>3 models deployed: Isolation Forest, DBSCAN, LOF with composite risk scoring</p>
     </div>
-    <div class="step-card">
-      <div class="step-num">3</div>
-      <h3>Rule-Based Engine</h3>
-      <p>Combine high login attempts + high amount + new device patterns into flagging rules</p>
+    <div class="step-card" style="border-color:var(--green); background:rgba(46,125,50,0.03);">
+      <div class="step-num" style="background:var(--green);">&#10003;</div>
+      <h3>Model Evaluation</h3>
+      <p>Internal metrics, sensitivity analysis, feature importance, statistical significance tests</p>
     </div>
     <div class="step-card">
       <div class="step-num">4</div>
-      <h3>Real-time Monitoring</h3>
-      <p>Build operational dashboard for continuous transaction monitoring and alerting</p>
+      <h3>Rule Engine + Dashboard</h3>
+      <p>Hybrid rule-based flagging + real-time operational monitoring dashboard</p>
     </div>
   </div>
 
