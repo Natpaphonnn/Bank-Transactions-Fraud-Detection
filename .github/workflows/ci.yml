@@ -1,0 +1,80 @@
+name: CI — Validate Notebooks & Dashboard
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install nbformat
+
+      - name: Validate notebook structure
+        run: |
+          python -c "
+          import nbformat, glob, sys
+          notebooks = glob.glob('*.ipynb')
+          print(f'Found {len(notebooks)} notebooks')
+          errors = []
+          for nb_path in sorted(notebooks):
+              try:
+                  with open(nb_path) as f:
+                      nb = nbformat.read(f, as_version=4)
+                  cells = len(nb.cells)
+                  code_cells = sum(1 for c in nb.cells if c.cell_type == 'code')
+                  print(f'  {nb_path}: {cells} cells ({code_cells} code)')
+              except Exception as e:
+                  errors.append(f'{nb_path}: {e}')
+                  print(f'  ERROR {nb_path}: {e}')
+          if errors:
+              sys.exit(1)
+          print('All notebooks valid!')
+          "
+
+      - name: Validate dashboard imports
+        run: |
+          python -c "
+          import ast, sys
+          with open('dashboard.py') as f:
+              tree = ast.parse(f.read())
+          print('dashboard.py: syntax OK')
+          print(f'  Functions: {sum(1 for n in ast.walk(tree) if isinstance(n, ast.FunctionDef))}')
+          print(f'  Lines: {tree.body[-1].end_lineno}')
+          "
+
+      - name: Validate presentation HTML
+        run: |
+          python -c "
+          from html.parser import HTMLParser
+          class Validator(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.tags = 0
+              def handle_starttag(self, tag, attrs): self.tags += 1
+          v = Validator()
+          with open('presentation.html') as f:
+              v.feed(f.read())
+          print(f'presentation.html: {v.tags} HTML tags parsed OK')
+          "
+
+      - name: Check data file exists
+        run: |
+          python -c "
+          import os
+          f = 'bank_transactions.csv'
+          size = os.path.getsize(f)
+          print(f'{f}: {size/1024/1024:.1f} MB')
+          "

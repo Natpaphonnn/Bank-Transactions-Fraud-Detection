@@ -107,10 +107,32 @@
     min-height: 100vh; padding: 100px 40px 60px;
     display: flex; flex-direction: column; justify-content: center;
     max-width: 1400px; margin: 0 auto;
-    opacity: 0; transform: translateY(20px);
-    animation: slideIn 0.6s ease forwards;
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.8s cubic-bezier(.25,.46,.45,.94), transform 0.8s cubic-bezier(.25,.46,.45,.94);
   }
-  @keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
+  .slide.visible {
+    opacity: 1; transform: translateY(0);
+  }
+  /* Staggered children animation */
+  .slide .card, .slide .alert-card, .slide .bento-cell, .slide .step-card {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .slide.visible .card, .slide.visible .alert-card, .slide.visible .bento-cell, .slide.visible .step-card {
+    opacity: 1; transform: translateY(0);
+  }
+  .slide.visible .card:nth-child(1), .slide.visible .alert-card:nth-child(1), .slide.visible .bento-cell:nth-child(1), .slide.visible .step-card:nth-child(1) { transition-delay: 0.1s; }
+  .slide.visible .card:nth-child(2), .slide.visible .alert-card:nth-child(2), .slide.visible .bento-cell:nth-child(2), .slide.visible .step-card:nth-child(2) { transition-delay: 0.2s; }
+  .slide.visible .card:nth-child(3), .slide.visible .alert-card:nth-child(3), .slide.visible .bento-cell:nth-child(3), .slide.visible .step-card:nth-child(3) { transition-delay: 0.3s; }
+  .slide.visible .card:nth-child(4), .slide.visible .alert-card:nth-child(4), .slide.visible .bento-cell:nth-child(4), .slide.visible .step-card:nth-child(4) { transition-delay: 0.4s; }
+
+  /* KPI counter pulse */
+  @keyframes countPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  .kpi-animate { animation: countPulse 0.4s ease; }
 
   /* ── Hero Section ── */
   .hero { text-align: center; padding-top: 120px; }
@@ -419,6 +441,7 @@
   </div>
   <div class="nav-links">
     <a href="#hero" class="active">Overview</a>
+    <a href="#exec-summary">Summary</a>
     <a href="#data-quality">Data Quality</a>
     <a href="#transactions">Transactions</a>
     <a href="#behavior">Behavior</a>
@@ -499,6 +522,57 @@
         </div>
       </div>
       <div class="globe-ticker" id="globeTicker"></div>
+    </div>
+  </div>
+</section>
+
+<div class="slide-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SLIDE 1.5: Executive Summary -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="slide" id="exec-summary">
+  <div class="section-num">00 — Executive Summary</div>
+  <div class="section-title">Pipeline at a Glance</div>
+  <div class="section-sub">End-to-end unsupervised fraud detection — from raw data to actionable risk scores</div>
+
+  <div class="card-grid cols-4" style="margin-bottom:20px;">
+    <div class="card" style="text-align:center; background:var(--black); color:#fff; border:none;">
+      <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.4); margin-bottom:8px;">Transactions Analyzed</div>
+      <div style="font-size:40px; font-weight:900; color:#fff;" data-count="50000">0</div>
+      <div style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:4px;">$14.8M total volume</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:8px;">ML Models</div>
+      <div style="font-size:40px; font-weight:900; color:var(--brown);">3</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">ISO Forest + DBSCAN + LOF</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:8px;">Expert Rules</div>
+      <div style="font-size:40px; font-weight:900; color:var(--orange);">7</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">94.7% recall on ML anomalies</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:8px;">Critical Alerts</div>
+      <div style="font-size:40px; font-weight:900; color:var(--red);">24</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">0.05% highest risk</div>
+    </div>
+  </div>
+
+  <div class="card-grid cols-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Hybrid Risk Distribution</div>
+        <span class="card-tag tag-brown">Final Output</span>
+      </div>
+      <div class="chart-wrap" style="height:240px;"><canvas id="chartExecRisk"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Top Risk Factors</div>
+        <span class="card-tag tag-red">Key Drivers</span>
+      </div>
+      <div class="chart-wrap" style="height:240px;"><canvas id="chartExecDrivers"></canvas></div>
     </div>
   </div>
 </section>
@@ -1214,6 +1288,7 @@
           </tr>
         </tbody>
       </table>
+      <div class="chart-wrap" style="height:200px; margin-top:12px;"><canvas id="chartRuleTrigger"></canvas></div>
       <div class="insight-box">
         <div class="insight-title">Top Trigger</div>
         <p><strong>Device Sharing</strong> triggers มากที่สุด (45.92%) → อุปกรณ์เครื่องเดียวถูกใช้หลายบัญชี เป็นสัญญาณ fraud ที่ชัดเจน</p>
@@ -1225,35 +1300,32 @@
         <div class="card-title">Hybrid Risk Distribution</div>
         <span class="card-tag tag-brown">ML + Rules</span>
       </div>
-      <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px; font-style:italic;">Hybrid Score = 0.5 × ML Score + 0.5 × Rule Score</div>
-      <div style="margin-top:8px;">
-        <div class="progress-row">
-          <div class="progress-label">
-            <span><span class="status-dot" style="background:var(--green)"></span> Low Risk</span>
-            <span style="font-weight:700; color:var(--green);">22,352 (44.7%)</span>
-          </div>
-          <div class="progress-bar"><div class="progress-fill" style="width:44.7%; background:var(--green);"></div></div>
+      <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px; font-style:italic;">Hybrid Score = 0.5 × ML Score + 0.5 × Rule Score</div>
+      <div style="display:flex; align-items:center; gap:24px;">
+        <div class="chart-wrap" style="width:180px; height:180px; flex-shrink:0;">
+          <canvas id="chartHybridDonut"></canvas>
         </div>
-        <div class="progress-row">
-          <div class="progress-label">
-            <span><span class="status-dot" style="background:var(--brown-accent)"></span> Medium Risk</span>
-            <span style="font-weight:700; color:var(--brown-accent);">24,596 (49.2%)</span>
+        <div class="legend" style="flex:1;">
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--green)"></span>
+            <span class="legend-text">Low</span>
+            <span class="legend-val">44.7%</span>
           </div>
-          <div class="progress-bar"><div class="progress-fill" style="width:49.2%; background:var(--brown-accent);"></div></div>
-        </div>
-        <div class="progress-row">
-          <div class="progress-label">
-            <span><span class="status-dot" style="background:var(--orange)"></span> High Risk</span>
-            <span style="font-weight:700; color:var(--orange);">3,028 (6.1%)</span>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--brown-accent)"></span>
+            <span class="legend-text">Medium</span>
+            <span class="legend-val">49.2%</span>
           </div>
-          <div class="progress-bar"><div class="progress-fill" style="width:30%; background:var(--orange);"></div></div>
-        </div>
-        <div class="progress-row">
-          <div class="progress-label">
-            <span><span class="status-dot" style="background:var(--red)"></span> Critical Risk</span>
-            <span style="font-weight:700; color:var(--red);">24 (0.05%)</span>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--orange)"></span>
+            <span class="legend-text">High</span>
+            <span class="legend-val">6.1%</span>
           </div>
-          <div class="progress-bar"><div class="progress-fill" style="width:4%; background:var(--red);"></div></div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--red)"></span>
+            <span class="legend-text">Critical</span>
+            <span class="legend-val">0.05%</span>
+          </div>
         </div>
       </div>
       <div class="insight-box">
@@ -1506,6 +1578,102 @@ new Chart(document.getElementById('chartAge'), {
     }
   }
 });
+
+// ── Executive Summary Charts ──
+// Risk Distribution Donut
+new Chart(document.getElementById('chartExecRisk'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Low (44.7%)', 'Medium (49.2%)', 'High (6.1%)', 'Critical (0.05%)'],
+    datasets: [{
+      data: [22352, 24596, 3028, 24],
+      backgroundColor: [C.green, C.brownAccent, C.orange, C.red],
+      borderWidth: 0, borderRadius: 4
+    }]
+  },
+  options: {
+    cutout: '65%', responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true, pointStyle: 'circle', font: { size: 11 }, padding: 12 } }
+    }
+  }
+});
+
+// Top Risk Drivers Horizontal Bar
+new Chart(document.getElementById('chartExecDrivers'), {
+  type: 'bar',
+  data: {
+    labels: ['Login 3+', 'Amt/Balance', 'Amount Z>2', 'ATM Channel', 'Student Occ.'],
+    datasets: [{
+      data: [164.3, 527, 99.7, 85.1, 89.3],
+      backgroundColor: [C.red, C.red, C.orange, C.brownWarm, C.brownAccent],
+      borderRadius: 4, borderSkipped: false
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: C.gridColor }, ticks: { callback: v => '+'+v+'%' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// ── Rule Engine Charts ──
+// Rule Trigger Rate Bar
+new Chart(document.getElementById('chartRuleTrigger'), {
+  type: 'bar',
+  data: {
+    labels: ['Device Share', 'Multi-Loc', 'Amt/Bal', 'Login 3+', 'Amt Z>2', 'Rapid Txn', 'High Vel.'],
+    datasets: [{
+      data: [45.92, 18.79, 5.62, 3.85, 3.39, 2.41, 0.12],
+      backgroundColor: [C.red, C.orange, C.orange, C.red, C.brownWarm, C.brownAccent, C.brownAccent],
+      borderRadius: 4, borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: C.gridColor }, ticks: { callback: v => v+'%' } },
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+// Hybrid Risk Donut
+new Chart(document.getElementById('chartHybridDonut'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Low', 'Medium', 'High', 'Critical'],
+    datasets: [{
+      data: [22352, 24596, 3028, 24],
+      backgroundColor: [C.green, C.brownAccent, C.orange, C.red],
+      borderWidth: 0, borderRadius: 4
+    }]
+  },
+  options: {
+    cutout: '72%', responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { display: false } }
+  }
+});
+
+// ── Scroll Reveal Observer ──
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.slide').forEach(slide => {
+  revealObserver.observe(slide);
+});
+
+// Make hero visible immediately
+document.querySelector('.slide.hero')?.classList.add('visible');
 
 // ── Smooth Scroll + Active Nav ──
 document.querySelectorAll('.nav-links a').forEach(link => {

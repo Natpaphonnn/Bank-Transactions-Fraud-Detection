@@ -145,7 +145,7 @@ df = load_data()
 st.sidebar.title("🏦 BankGuard Analytics")
 st.sidebar.markdown("---")
 
-page = st.sidebar.radio("Navigation", ["Overview", "Account Drill-Down", "Rule Engine", "Risk Explorer"])
+page = st.sidebar.radio("Navigation", ["Overview", "Account Drill-Down", "Rule Engine", "Risk Explorer", "Live Monitor"])
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("**Filters**")
@@ -345,6 +345,117 @@ elif page == "Risk Explorer":
     st.plotly_chart(fig, use_container_width=True)
 
 
+# ══════════════════════════════════════════════════
+# PAGE: LIVE MONITOR (Real-time Simulation)
+# ══════════════════════════════════════════════════
+elif page == "Live Monitor":
+    import time
+
+    st.title("Live Transaction Monitor")
+    st.caption("Real-time fraud detection simulation — streaming transactions from the dataset")
+
+    # Controls
+    col_ctrl1, col_ctrl2, col_ctrl3 = st.columns([1,1,2])
+    speed = col_ctrl1.slider("Speed (txn/sec)", 1, 20, 5)
+    batch_size = col_ctrl2.slider("Batch size", 1, 10, 3)
+    alert_threshold = col_ctrl3.slider("Alert threshold (hybrid score)", 0.1, 0.5, 0.25, 0.05)
+
+    # Placeholders for live updates
+    kpi_placeholder = st.empty()
+    col_chart1, col_chart2 = st.columns(2)
+    chart1_placeholder = col_chart1.empty()
+    chart2_placeholder = col_chart2.empty()
+    feed_placeholder = st.empty()
+
+    # Simulation state
+    if 'monitor_running' not in st.session_state:
+        st.session_state.monitor_running = False
+    if 'monitor_idx' not in st.session_state:
+        st.session_state.monitor_idx = 0
+
+    col_btn1, col_btn2 = st.columns(2)
+    start = col_btn1.button("▶ Start Monitoring", type="primary", use_container_width=True)
+    stop = col_btn2.button("⏹ Stop", use_container_width=True)
+
+    if start:
+        st.session_state.monitor_running = True
+    if stop:
+        st.session_state.monitor_running = False
+
+    if st.session_state.monitor_running:
+        # Shuffle data for variety
+        sim_df = df.sample(frac=1, random_state=42).reset_index(drop=True)
+        processed = []
+        alerts = []
+        idx = st.session_state.monitor_idx
+
+        for step in range(50):  # Run 50 steps then stop
+            if not st.session_state.monitor_running:
+                break
+
+            batch = sim_df.iloc[idx:idx+batch_size]
+            idx = (idx + batch_size) % len(sim_df)
+            processed.extend(batch.to_dict('records'))
+
+            # Detect alerts in this batch
+            batch_alerts = batch[batch['hybrid_score'] >= alert_threshold]
+            alerts.extend(batch_alerts.to_dict('records'))
+
+            recent = pd.DataFrame(processed[-200:])  # Keep last 200
+
+            # KPI row
+            with kpi_placeholder.container():
+                k1, k2, k3, k4 = st.columns(4)
+                k1.metric("Processed", f"{len(processed):,}")
+                k2.metric("Alerts", f"{len(alerts)}", delta=f"+{len(batch_alerts)}" if len(batch_alerts) > 0 else None,
+                         delta_color="inverse")
+                k3.metric("Alert Rate", f"{len(alerts)/max(len(processed),1)*100:.1f}%")
+                avg_risk = recent['hybrid_score'].mean()
+                k4.metric("Avg Risk", f"{avg_risk:.4f}")
+
+            # Rolling risk chart
+            with chart1_placeholder.container():
+                if len(recent) > 5:
+                    recent_copy = recent.copy()
+                    recent_copy['idx'] = range(len(recent_copy))
+                    fig = px.line(recent_copy, x='idx', y='hybrid_score',
+                                 title="Rolling Risk Score",
+                                 color_discrete_sequence=['#6b3a2a'])
+                    fig.add_hline(y=alert_threshold, line_dash="dash", line_color="#ef4444",
+                                 annotation_text="Alert Threshold")
+                    fig.update_layout(height=280, xaxis_title="Transaction #", yaxis_title="Hybrid Score")
+                    st.plotly_chart(fig, use_container_width=True, key=f"risk_{step}")
+
+            # Risk level distribution
+            with chart2_placeholder.container():
+                if len(recent) > 5:
+                    lvl_counts = recent['hybrid_level'].value_counts().reindex(['Low','Medium','High','Critical']).fillna(0)
+                    fig = px.bar(x=lvl_counts.index, y=lvl_counts.values,
+                                color=lvl_counts.index,
+                                color_discrete_map={'Low':'#22c55e','Medium':'#f59e0b','High':'#ef4444','Critical':'#7f1d1d'},
+                                title="Risk Level Distribution (Last 200)")
+                    fig.update_layout(height=280, showlegend=False, xaxis_title="Risk Level", yaxis_title="Count")
+                    st.plotly_chart(fig, use_container_width=True, key=f"dist_{step}")
+
+            # Alert feed
+            with feed_placeholder.container():
+                if alerts:
+                    st.subheader(f"Alert Feed ({len(alerts)} alerts)")
+                    alert_df = pd.DataFrame(alerts[-15:])[::-1]  # Last 15, newest first
+                    display = alert_df[['TransactionID','AccountID','TransactionAmount',
+                                       'Channel','LoginAttempts','hybrid_score','hybrid_level']].reset_index(drop=True)
+                    st.dataframe(display, use_container_width=True, height=300)
+
+            time.sleep(1.0 / speed)
+
+        st.session_state.monitor_idx = idx
+        st.session_state.monitor_running = False
+        st.info("Simulation completed (50 batches). Click **Start Monitoring** to continue.")
+
+    else:
+        st.info("Click **Start Monitoring** to begin the real-time fraud detection simulation.")
+
+
 # Footer
 st.sidebar.markdown("---")
-st.sidebar.caption("BankGuard Analytics v1.0\nFraud Detection Dashboard")
+st.sidebar.caption("BankGuard Analytics v2.0\nFraud Detection Dashboard")
