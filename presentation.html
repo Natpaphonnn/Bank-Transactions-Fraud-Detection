@@ -1435,8 +1435,8 @@ animateCounters();
   window.addEventListener('mouseup', () => { isDragging = false; container.style.cursor = 'grab'; });
   window.addEventListener('mousemove', e => {
     if (isDragging) {
-      rotVelY += (e.clientX - prevMouse.x) * 0.003;
-      rotVelX += (e.clientY - prevMouse.y) * 0.003;
+      rotVelY = (e.clientX - prevMouse.x) * 0.002;
+      rotVelX = (e.clientY - prevMouse.y) * 0.002;
       prevMouse = { x: e.clientX, y: e.clientY };
       autoRotate = false; zoomedCity = null;
       document.querySelectorAll('.city-item').forEach(el => el.classList.remove('active'));
@@ -1468,7 +1468,7 @@ animateCounters();
       });
     }
 
-    rotVelX *= 0.95; rotVelY *= 0.95;
+    rotVelX *= 0.85; rotVelY *= 0.85;
 
     // Smooth zoom
     currentZoom += (targetZoom - currentZoom) * 0.05;
